@@ -36,6 +36,11 @@ workflows:
           context: aws
   build-and-deploy:
     jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
       - aws-ecr/build-and-push-image:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
