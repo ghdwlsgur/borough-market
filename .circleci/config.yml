@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  aws-ecr: circleci/aws-ecr@8.1.2
+  aws-ecr: circleci/aws-ecr@0.0.2
   aws-ecs: circleci/aws-ecs@3.2.0
   aws-cli: circleci/aws-cli@3.1.3
 jobs:
@@ -13,7 +13,7 @@ jobs:
           aws-region: AWS_REGION
 
   # https://circleci.com/docs/docker-compose
-  build-and-push-image:
+  build-and-tag-image:
     docker:
       - image: docker:17.05.0-ce-git
     resource_class: large
@@ -41,13 +41,11 @@ jobs:
           name: Tear down
           command: docker-compose down -v
       - run:
-          name: Push node server and mongodb images
+          name: Tag docker images
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then      
-              docker ps
-              docker images          
-              docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
-              docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then                                  
+              docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node              
+              docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo
             fi
 
 # aws ecr get-login-password --region $(echo "${AWS_REGION}") | docker login --username AWS --password-stdin $(echo "${AWS_ACCOUNT_ID}").dkr.ecr.$(echo "${AWS_REGION}").amazonaws.com
@@ -62,12 +60,19 @@ workflows:
           context: aws
   build-and-deploy:
     jobs:
-      - build-and-push-image:
+      - build-and-tag-image:
           filters:
             branches:
               only:
                 - master
       # https://circleci.com/developer/orbs/orb/circleci/aws-ecr
+      - aws-ecr/build_and_push_image:
+          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          repo: "${AWS_RESOURCE_NAME_PREFIX}"
+          region: ${AWS_REGION}
+          tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
+          requires:
+            - build-and-tag-image
       # - aws-ecr/build-and-push-image:
       #     aws-access-key-id: AWS_ACCESS_KEY
       #     aws-secret-access-key: AWS_ACCESS_SECRET
@@ -81,8 +86,8 @@ workflows:
       #       - build
       - aws-ecs/deploy-service-update:
           requires:
-            # - aws-ecr/build-and-push-image
-            - build-and-push-image
+            - aws-ecr/build_and_push_image
+            # - build-and-tag-image
           aws-region: AWS_REGION
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
           cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
