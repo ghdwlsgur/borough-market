@@ -60,7 +60,7 @@ workflows:
             branches:
               only:
                 - master
-      - aws-ecr/push-image:
+      - aws-ecr/build-and-push-image:
           account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
@@ -88,8 +88,7 @@ workflows:
       #       - build-and-tag-image
       - aws-ecs/deploy-service-update:
           requires:
-            - aws-ecr/push-image
-            # - aws-ecr/build-and-push-image
+            - aws-ecr/build-and-push-image
             # - build-and-tag-image
           aws-region: AWS_REGION
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
