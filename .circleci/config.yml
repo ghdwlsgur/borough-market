@@ -45,8 +45,8 @@ jobs:
           name: Tag docker images
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then                                  
-              docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node              
-              docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo
+              docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com:${AWS_RESOURCE_NAME_PREFIX}-node              
+              docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com:${AWS_RESOURCE_NAME_PREFIX}-mongo
             fi
 workflows:
   aws-credentials-validate:
