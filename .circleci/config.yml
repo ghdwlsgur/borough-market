@@ -64,6 +64,8 @@ workflows:
           # account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
           repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
           tag: "node"
+          aws-access-key-id: AWS_ACCESS_KEY
+          aws-secret_access-key: AWS_ACCESS_SECRET
           requires:
             - build-and-tag-image
       # https://circleci.com/developer/orbs/orb/circleci/aws-ecr
