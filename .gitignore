@@ -1,2 +1,13 @@
 node_modules
 package-lock.json
+
+# terraform
+terraform_setup/.terraform/**
+terraform_setup/.terraform.lock.hcl
+terraform_setup/terraform.tfstate
+terraform_setup/terraform.tfstate.backup
+
+# terraform variables
+terraform_setup/terraform.tfvars 
+
+
