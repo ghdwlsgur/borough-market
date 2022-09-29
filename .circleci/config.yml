@@ -31,7 +31,6 @@ jobs:
             curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64" -o ~/docker-compose  
             chmod +x ~/docker-compose  
             mv ~/docker-compose /usr/local/bin/docker-compose
-      - setup_remote_docker
       - run:
           name: Build images of services declared in docker-compose.yml
           command: docker-compose build
