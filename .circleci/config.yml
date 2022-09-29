@@ -3,10 +3,10 @@ orbs:
   aws-ecr: circleci/aws-ecr@8.1.2
   aws-ecs: circleci/aws-ecs@3.2.0
 workflows:
-  build-and-deploy:
+  build_and_deploy:
     jobs:
       - aws-ecr/build-and-push-image:
-          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+          registry-id: "${AWS_ACCOUNT_ID}"
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           region: ${AWS_DEFAULT_REGION}
           tag: "${CIRCLE_SHA1}"
