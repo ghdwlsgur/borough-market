@@ -41,10 +41,9 @@ jobs:
           name: Tear down
           command: docker-compose down -v
       - run:
-          name: Push node server and mongodb images to amazon ECR
+          name: Push node server and mongodb images
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then 
-              aws ecr get-login              
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then                        
               docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
             fi
