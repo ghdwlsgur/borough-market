@@ -16,7 +16,7 @@ jobs:
   build:
     docker:
       - image: docker:17.05.0-ce-git
-    resource_class: small
+    resource_class: large
     steps:
       - checkout
       - setup_remote_docker:
@@ -25,10 +25,10 @@ jobs:
       - run:
           name: Download and install docker compose
           environment:
-            COMPOSE_VERSION: "3.8"
+            COMPOSE_VERSION: "2.5.0"
           command: |
             apk update && apk upgrade && apk add curl  
-            curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64" -o ~/docker-compose  
+            curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
             chmod +x ~/docker-compose  
             mv ~/docker-compose /usr/local/bin/docker-compose
       - run:
@@ -37,6 +37,9 @@ jobs:
       - run:
           name: Start all services declared in docker-compose.yml
           command: docker-compose up -d
+      - run:
+          name: tear-down
+          command: docker-compose down -v
 
 workflows:
   aws-credentials-validate:
