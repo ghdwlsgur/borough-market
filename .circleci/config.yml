@@ -19,14 +19,14 @@ workflows:
   build_and_deploy:
     jobs:
       - aws-ecr/build-and-push-image:
-          registry-id: "${AWS_ACCOUNT_ID}"
-          repo: "${AWS_RESOURCE_NAME_PREFIX}"
-          region: ${AWS_DEFAULT_REGION}
-          tag: "${CIRCLE_SHA1}"
+          registry-id: AWS_ACCOUNT_ID
+          repo: "AWS_RESOURCE_NAME_PREFIX"
+          region: AWS_REGION
+          tag: CIRCLE_SHA1
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build_and_push_image
-          aws-region: ${AWS_DEFAULT_REGION}
+          aws-region: AWS_REGION
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
           cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
           container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
