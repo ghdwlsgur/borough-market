@@ -88,7 +88,8 @@ workflows:
       #       - build-and-tag-image
       - aws-ecs/deploy-service-update:
           requires:
-            - aws-ecr/build-and-push-image
+            - aws-ecr/push-image
+            # - aws-ecr/build-and-push-image
             # - build-and-tag-image
           aws-region: AWS_REGION
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
