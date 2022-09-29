@@ -43,11 +43,12 @@ jobs:
       - run:
           name: Push node server and mongodb images to amazon ECR
           command: |
-            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+            aws ecr get-login-password --region $(echo "${AWS_REGION}") | docker login --username AWS --password-stdin $(echo "${AWS_ACCOUNT_ID}").dkr.ecr.$(echo "${AWS_REGION}").amazonaws.com
             docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
             docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo
+
 workflows:
   aws-credentials-validate:
     jobs:
