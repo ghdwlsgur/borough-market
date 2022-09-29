@@ -1,6 +1,8 @@
 version: '2.5.0'
 services:
   node:    
+    container_name: borough-market-node
+    image: borough-market-node
     restart: always
     build: .
     ports:
@@ -9,7 +11,8 @@ services:
       - ./:/code
     environment:
       - mongoURI=${mongoURI}
-  mongo:          
+  mongo:    
+    container_name: borough-market-mongo      
     image: mongo    
     ports:
       - 27017:27017
