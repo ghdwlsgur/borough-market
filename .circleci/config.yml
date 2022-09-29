@@ -18,7 +18,8 @@ jobs:
       - image: cimg/base:current
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.11
       - run:
           name: Install dependencies
           command: |
