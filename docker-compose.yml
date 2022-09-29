@@ -1,6 +1,6 @@
 version: '2.5.0'
 services:
-  node:
+  node:    
     restart: always
     build: .
     ports:
