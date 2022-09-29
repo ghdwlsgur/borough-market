@@ -13,19 +13,22 @@ jobs:
           aws-region: AWS_REGION
   build:
     docker:
-      - image: cimg/base:current
+      - image: docker:17.05.0-ce-git
+    resource_class: small
     steps:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
+          version: 20.10.12
       - run:
-          name: Install Docker Compose
+          name: Download and install docker compose
           environment:
             COMPOSE_VERSION: "1.29.2"
           command: |
-            curl -L "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
-            chmod +x ~/docker-compose
-            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+            apk update && apk upgrade && apk add curl  
+            curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64" -o ~/docker-compose  
+            chmod +x ~/docker-compose  
+            mv ~/docker-compose /usr/local/bin/docker-compose
 workflows:
   aws-credentials-validate:
     jobs:
