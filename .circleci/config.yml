@@ -12,13 +12,16 @@ jobs:
           aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
 workflows:
-  aws-cli:
+  aws-credentials-validate:
     jobs:
       - aws-cli-cred-setup:
           context: aws
   build-and-deploy:
     jobs:
       - aws-ecr/build-and-push-image:
+          aws-cli-verison: latest
+          aws-access-key-id: AWS_ACCESS_KEY
+          aws-secret-access-key: AWS_ACCESS_SECRET
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${CIRCLE_SHA1}"
       - aws-ecs/deploy-service-update:
