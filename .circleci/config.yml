@@ -26,6 +26,7 @@ workflows:
           region: "${AWS_REGION}"
           repo-scan-on-push: true
           push-image: true
+          setup-remote-docker: true
           tag: "${CIRCLE_SHA1}"
       - aws-ecs/deploy-service-update:
           requires:
