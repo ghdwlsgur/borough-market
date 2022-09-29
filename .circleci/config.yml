@@ -23,7 +23,7 @@ workflows:
           aws-secret-access-key: AWS_ACCESS_SECRET
           repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
           registry-id: AWS_ACCOUNT_ID
-          region: AWS_REGION
+          region: "${AWS_REGION}"
           repo-scan-on-push: true
           push-image: true
           tag: "${CIRCLE_SHA1}"
