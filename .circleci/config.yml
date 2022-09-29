@@ -11,6 +11,23 @@ jobs:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
+
+  build:
+    working_directory: /app
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache \
+              py-pip=9.0.0-r1
+            pip install \
+              docker-compose==1.12.0 \
+              awscli==1.11.76
+
 workflows:
   aws-credentials-validate:
     jobs:
@@ -24,6 +41,7 @@ workflows:
           repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
           registry-id: AWS_ACCOUNT_ID
           region: "${AWS_REGION}"
+          setup-remote-docker: true
           repo-scan-on-push: true
           push-image: true
           tag: "${CIRCLE_SHA1}"
