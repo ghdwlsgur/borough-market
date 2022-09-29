@@ -46,6 +46,8 @@ workflows:
           repo-scan-on-push: true
           push-image: true
           tag: "${CIRCLE_SHA1}"
+          requires:
+            - build
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
