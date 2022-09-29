@@ -32,12 +32,6 @@ jobs:
             chmod +x ~/docker-compose  
             mv ~/docker-compose /usr/local/bin/docker-compose
       - run:
-          name: Download and install aws-cli
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
           name: Build images of services declared in docker-compose.yml
           command: docker-compose build
       - run:
@@ -50,8 +44,7 @@ jobs:
           name: Push node server and mongodb images to amazon ECR
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then 
-              login="$(aws ecr get-login)"
-              ${login}
+              aws ecr get-login              
               docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
             fi
