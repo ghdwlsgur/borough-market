@@ -16,18 +16,30 @@ workflows:
     jobs:
       - aws-cli-cred-setup:
           context: aws
+    # my-job:
+    #   docker:
+    #     - image: cimg/base:current
+    #   steps:
+    #     - checkout
+    #     - setup_remote_docker:
+    #       version: 20.10.11
   build-and-deploy:
     jobs:
       - aws-ecr/build-and-push-image:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
+          setup-remote-docker: true
           repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
           registry-id: AWS_ACCOUNT_ID
           region: "${AWS_REGION}"
           repo-scan-on-push: true
           push-image: true
-          setup-remote-docker: true
           tag: "${CIRCLE_SHA1}"
+          steps:
+            - checkout
+            - setup_remote_docker:
+              version: 20.10.11
+            - run:
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
