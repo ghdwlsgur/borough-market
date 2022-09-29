@@ -13,7 +13,7 @@ jobs:
           aws-region: AWS_REGION
 
   # https://circleci.com/docs/docker-compose
-  build:
+  build-and-push-image:
     docker:
       - image: docker:17.05.0-ce-git
     resource_class: large
@@ -38,9 +38,16 @@ jobs:
           name: Start all services declared in docker-compose.yml
           command: docker-compose up -d
       - run:
-          name: tear-down
+          name: Tear down
           command: docker-compose down -v
-
+      - run:
+          name: Push node server and mongodb images to amazon ECR
+          command: |
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+            docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
+            docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo
 workflows:
   aws-credentials-validate:
     jobs:
@@ -48,25 +55,27 @@ workflows:
           context: aws
   build-and-deploy:
     jobs:
-      - build:
+      - build-and-push-image:
           filters:
             branches:
               only:
                 - master
-      - aws-ecr/build-and-push-image:
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_ACCESS_SECRET
-          repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          registry-id: AWS_ACCOUNT_ID
-          region: "${AWS_REGION}"
-          repo-scan-on-push: true
-          push-image: true
-          tag: "${CIRCLE_SHA1}"
-          requires:
-            - build
+      # https://circleci.com/developer/orbs/orb/circleci/aws-ecr
+      # - aws-ecr/build-and-push-image:
+      #     aws-access-key-id: AWS_ACCESS_KEY
+      #     aws-secret-access-key: AWS_ACCESS_SECRET
+      #     repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+      #     registry-id: AWS_ACCOUNT_ID
+      #     region: "${AWS_REGION}"
+      #     repo-scan-on-push: true
+      #     push-image: true
+      #     tag: "${CIRCLE_SHA1}"
+      #     requires:
+      #       - build
       - aws-ecs/deploy-service-update:
           requires:
-            - aws-ecr/build-and-push-image
+            # - aws-ecr/build-and-push-image
+            - build-and-push-image
           aws-region: AWS_REGION
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
           cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
