@@ -11,6 +11,8 @@ jobs:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
+
+  # https://circleci.com/docs/docker-compose
   build:
     docker:
       - image: docker:17.05.0-ce-git
@@ -23,12 +25,20 @@ jobs:
       - run:
           name: Download and install docker compose
           environment:
-            COMPOSE_VERSION: "1.29.2"
+            COMPOSE_VERSION: "3.8"
           command: |
             apk update && apk upgrade && apk add curl  
             curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64" -o ~/docker-compose  
             chmod +x ~/docker-compose  
             mv ~/docker-compose /usr/local/bin/docker-compose
+      - setup_remote_docker
+      - run:
+          name: Build images of services declared in docker-compose.yml
+          command: docker-compose build
+      - run:
+          name: Start all services declared in docker-compose.yml
+          command: docker-compose up -d
+
 workflows:
   aws-credentials-validate:
     jobs:
@@ -47,7 +57,6 @@ workflows:
           repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
           registry-id: AWS_ACCOUNT_ID
           region: "${AWS_REGION}"
-          setup-remote-docker: true
           repo-scan-on-push: true
           push-image: true
           tag: "${CIRCLE_SHA1}"
