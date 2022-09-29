@@ -31,6 +31,9 @@ jobs:
             curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
             chmod +x ~/docker-compose  
             mv ~/docker-compose /usr/local/bin/docker-compose
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Build images of services declared in docker-compose.yml
           command: docker-compose build
