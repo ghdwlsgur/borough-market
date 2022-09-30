@@ -37,45 +37,7 @@ jobs:
           command: export mongoURI=${mongoURI}
       - run:
           name: Node.js server responds 200 code
-          command: |
-            npm test
-
-  # build-test:
-  #   docker:
-  #     - image: docker:22.06-rc-git
-  #   resource_class: large
-  #   steps:
-  #     - checkout
-  #     - setup_remote_docker:
-  #         docker_layer_caching: true
-  #         version: 20.10.17
-  #     - run:
-  #         name: Download and install docker compose
-  #         environment:
-  #           COMPOSE_VERSION: "2.5.0"
-  #         command: |
-  #           apk update && apk upgrade && apk add curl
-  #           curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose
-  #           chmod +x ~/docker-compose
-  #           mv ~/docker-compose /usr/local/bin/docker-compose
-  #           apk add --update nodejs npm
-  #     - run:
-  #         name: Configure mongoURI
-  #         command: export mongoURI=${mongoURI}
-  #     - run:
-  #         name: Build images of services and Start all services declared in docker-compose.yml
-  #         command: |
-  #           docker-compose up -d --build
-  #           curl http://localhost/
-  #           curl http://localhost/3000
-  #           curl http://localhost/27017
-  #     - run:
-  #         name: Curl http://127.0.0.1/
-  #         command: |
-  #           node -v
-  #           curl http://localhost/
-  #           curl http://localhost/3000
-  #           curl http://localhost/27017
+          command: npm test
 
   # STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
 
@@ -159,19 +121,19 @@ workflows:
           requires:
             - express-test
 
-      # - aws-ecs/deploy-service-update:
-      #     requires:
-      #       - aws-cli-setup-and-push-image
-      #     aws-region: AWS_REGION
-      #     family: "${AWS_RESOURCE_NAME_PREFIX}-service"
-      #     cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
-      #     container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
-      #     verify-revision-is-deployed: true
-      #     post-steps:
-      #       - run:
-      #           name: Test the deployment
-      #           command: |
-      #             TARGET_GROUP_ARN=$(aws ecs describe-services --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --services ${AWS_RESOURCE_NAME_PREFIX}-service | jq -r '.services[0].loadBalancers[0].targetGroupArn')
-      #             ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
-      #             ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN | jq -r '.LoadBalancers[0].DNSName')
-      #             curl -s --retry 10 http://$ELB_DNS_NAME | grep "Welcome to nginx!"
+      - aws-ecs/deploy-service-update:
+          requires:
+            - aws-cli-setup-and-push-image
+          aws-region: AWS_REGION
+          family: "${AWS_RESOURCE_NAME_PREFIX}-service"
+          cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
+          container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
+          verify-revision-is-deployed: true
+          post-steps:
+            - run:
+                name: Test the deployment
+                command: |
+                  TARGET_GROUP_ARN=$(aws ecs describe-services --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --services ${AWS_RESOURCE_NAME_PREFIX}-service | jq -r '.services[0].loadBalancers[0].targetGroupArn')
+                  ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
+                  ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN | jq -r '.LoadBalancers[0].DNSName')
+                  curl -s --retry 10 http://$ELB_DNS_NAME | grep "Welcome to nginx!"
