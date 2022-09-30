@@ -25,6 +25,7 @@ jobs:
           environment:
             COMPOSE_VERSION: "2.5.0"
           command: |
+            apk add --update nodejs npm
             apk update && apk upgrade && apk add curl  
             curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
             chmod +x ~/docker-compose  
@@ -38,8 +39,7 @@ jobs:
       - run:
           name: Curl http://127.0.0.1/
           command: |
-
-            docker build -t borough-market-node .
+            node -v            
             curl http://localhost:80
 
   # STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
