@@ -42,13 +42,13 @@ jobs:
       - run:
           name: Tear down
           command: docker-compose down -v
-      - run:
-          name: Tag docker images
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then                                  
-              docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com:${AWS_RESOURCE_NAME_PREFIX}-node              
-              docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com:${AWS_RESOURCE_NAME_PREFIX}-mongo
-            fi
+      # - run:
+      #     name: Tag docker images
+      #     command: |
+      #       if [ "${CIRCLE_BRANCH}" == "master" ]; then
+      #         docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com:${AWS_RESOURCE_NAME_PREFIX}-node
+      #         docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com:${AWS_RESOURCE_NAME_PREFIX}-mongo
+      #       fi
 workflows:
   aws-credentials-validate:
     jobs:
@@ -83,12 +83,12 @@ workflows:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
           executor: aws-ecr/default
-          repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          repo: "{AWS_RESOURCE_NAME_PREFIX}-node"
+          tag: "latest"
           registry-id: AWS_ACCOUNT_ID
           region: "${AWS_REGION}"
           repo-scan-on-push: true
           push-image: true
-          tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
           requires:
             - build-and-tag-image
       - aws-ecs/deploy-service-update:
