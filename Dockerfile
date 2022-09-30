@@ -1,5 +1,5 @@
 
-FROM node:16.16.0 
+FROM node:16.17.1
 WORKDIR /app 
 COPY ["package.json", "package-lock.json*", "./"]
 RUN \
