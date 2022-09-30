@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  node: circleci/node@4.1.0
+  node: circleci/node@5.0.3
   aws-ecs: circleci/aws-ecs@3.2.0
   aws-cli: circleci/aws-cli@3.1.3
 jobs:
@@ -14,14 +14,15 @@ jobs:
   build-test:
     executor:
       name: node/default
-      tag: 14.15.1
     steps:
       - checkout
+      - run: sudo npm install -g npm@latest
       - node/install-packages:
-          pkg-manager: npm
-      # - run:
-      #     name: test config
-      #     command: export mongoURI=${mongoURI}
+          override-ci-command: npm install
+          cache-path: ./node_modules
+      - run:
+          name: test config
+          command: export mongoURI=${mongoURI}
       - run:
           name: test
           command: npm start
