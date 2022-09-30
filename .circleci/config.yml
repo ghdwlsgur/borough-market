@@ -1,12 +1,8 @@
 version: 2.1
 orbs:
-  # https://circleci.com/developer/orbs/orb/circleci/aws-ecr?version=7.3.0
-  # aws-ecr: circleci/aws-ecr@8.1.2
   aws-ecs: circleci/aws-ecs@3.2.0
   aws-cli: circleci/aws-cli@3.1.3
 jobs:
-  # aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 420578220663.dkr.ecr.us-east-1.amazonaws.com
-  # https://circleci.com/docs/docker-compose
   build-and-tag-image:
     docker:
       - image: docker:22.06-rc-git
@@ -54,14 +50,17 @@ jobs:
       #         docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com:${AWS_RESOURCE_NAME_PREFIX}-mongo
       #       fi
 workflows:
-  aws-credentials-validate:
+  # aws-credentials-validate:
+  #   jobs:
+  #     - aws-cli-cred-setup:
+  #         context: aws
+
+  build-and-deploy:
     jobs:
       - aws-cli-cred-setup:
           context: aws
-          # requires:
-          #   - build-and-tag-image
-  build-and-deploy:
-    jobs:
+          requires:
+            - build-and-tag-image
       - build-and-tag-image:
           filters:
             branches:
