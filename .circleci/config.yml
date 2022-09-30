@@ -3,13 +3,13 @@ orbs:
   aws-ecs: circleci/aws-ecs@3.2.0
   aws-cli: circleci/aws-cli@3.1.3
 jobs:
-  # build:
-  #   docker:
-  #     - image: cimg/base:edge
-  #   steps:
-  #     - aws-cli/install:
-  #         version: "1"
-
+  aws-cli-cred-setup:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY
+          aws-secret-access-key: AWS_ACCESS_SECRET
+          aws-region: AWS_REGION
   build-and-tag-image:
     docker:
       - image: docker:22.06-rc-git
@@ -110,6 +110,10 @@ workflows:
   #             only:
   #               - master
 
+  aws-credentials-validate:
+    jobs:
+      - aws-cli-cred-setup:
+          context: aws
   build-and-deploy:
     jobs:
       - build-and-tag-image:
