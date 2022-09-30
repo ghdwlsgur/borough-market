@@ -99,7 +99,13 @@ workflows:
   #   jobs:
   #     - aws-cli-cred-setup:
   #         context: aws
-
+  test:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
   build-and-deploy:
     jobs:
       - build-and-tag-image:
