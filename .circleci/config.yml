@@ -35,7 +35,6 @@ jobs:
           name: test
           command: |
             npm start
-            curl 127.0.0.1:3000
 
   # build-test:
   #   docker:
