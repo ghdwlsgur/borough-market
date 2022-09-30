@@ -10,43 +10,57 @@ jobs:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
-
   build-test:
-    docker:
-      - image: docker:22.06-rc-git
-    resource_class: large
+    executor:
+      name: node/default
+      tag: 14.15.1
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 20.10.17
+      - node/install-packages:
+          pkg-manager: npm
       - run:
-          name: Download and install docker compose
-          environment:
-            COMPOSE_VERSION: "2.5.0"
-          command: |
-            apk update && apk upgrade && apk add curl              
-            curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
-            chmod +x ~/docker-compose  
-            mv ~/docker-compose /usr/local/bin/docker-compose
-            apk add --update nodejs npm
-      - run:
-          name: Configure mongoURI
+          name: test config
           command: export mongoURI=${mongoURI}
       - run:
-          name: Build images of services and Start all services declared in docker-compose.yml
-          command: |
-            docker-compose up -d --build
-            curl http://localhost/
-            curl http://localhost/3000
-            curl http://localhost/27017
-      - run:
-          name: Curl http://127.0.0.1/
-          command: |
-            node -v            
-            curl http://localhost/
-            curl http://localhost/3000
-            curl http://localhost/27017
+          name: test
+          command: npm start
+
+  # build-test:
+  #   docker:
+  #     - image: docker:22.06-rc-git
+  #   resource_class: large
+  #   steps:
+  #     - checkout
+  #     - setup_remote_docker:
+  #         docker_layer_caching: true
+  #         version: 20.10.17
+  #     - run:
+  #         name: Download and install docker compose
+  #         environment:
+  #           COMPOSE_VERSION: "2.5.0"
+  #         command: |
+  #           apk update && apk upgrade && apk add curl
+  #           curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose
+  #           chmod +x ~/docker-compose
+  #           mv ~/docker-compose /usr/local/bin/docker-compose
+  #           apk add --update nodejs npm
+  #     - run:
+  #         name: Configure mongoURI
+  #         command: export mongoURI=${mongoURI}
+  #     - run:
+  #         name: Build images of services and Start all services declared in docker-compose.yml
+  #         command: |
+  #           docker-compose up -d --build
+  #           curl http://localhost/
+  #           curl http://localhost/3000
+  #           curl http://localhost/27017
+  #     - run:
+  #         name: Curl http://127.0.0.1/
+  #         command: |
+  #           node -v
+  #           curl http://localhost/
+  #           curl http://localhost/3000
+  #           curl http://localhost/27017
 
   # STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
 
