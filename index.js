@@ -12,12 +12,16 @@ mongoosee
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
 
-const Item = require('./models/Item');
+const { Item } = require('./models/Item');
 
 app.get('/', (req, res) => {
     Item.find()
         .then(items => res.render('index', { items }))
         .catch(err => res.status(404).json({ msg: 'No items found ' }));
+});
+
+app.get('/status', (req, res) => {
+    res.send('200');
 });
 
 app.post('/item/add', (req, res) => {
@@ -31,3 +35,5 @@ app.post('/item/add', (req, res) => {
 const port = 3000;
 
 app.listen(port, () => console.log('Server running...'));
+
+module.exports = app;
