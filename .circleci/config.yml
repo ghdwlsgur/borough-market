@@ -85,23 +85,23 @@ workflows:
       #     tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
       #     requires:
       #       - build-and-tag-image
-      - aws-ecr/build-and-push-image:
-          aws-cli-version: latest
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_ACCESS_SECRET
-          executor: aws-ecr/default
-          repo: AWS_RESOURCE_NAME_PREFIX
-          tag: "node"
-          registry-id: AWS_ACCOUNT_ID
-          region: "${AWS_REGION}"
-          repo-scan-on-push: true
-          push-image: true
-          requires:
-            - build-and-tag-image
+      # - aws-ecr/build-and-push-image:
+      #     aws-cli-version: latest
+      #     aws-access-key-id: AWS_ACCESS_KEY
+      #     aws-secret-access-key: AWS_ACCESS_SECRET
+      #     executor: aws-ecr/default
+      #     repo: AWS_RESOURCE_NAME_PREFIX
+      #     tag: "node"
+      #     registry-id: AWS_ACCOUNT_ID
+      #     region: "${AWS_REGION}"
+      #     repo-scan-on-push: true
+      #     push-image: true
+      #     requires:
+      #       - build-and-tag-image
       - aws-ecs/deploy-service-update:
           requires:
-            - aws-ecr/build-and-push-image
-            # - build-and-tag-image
+            # - aws-ecr/build-and-push-image
+            - build-and-tag-image
           aws-region: AWS_REGION
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
           cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
