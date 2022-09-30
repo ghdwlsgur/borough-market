@@ -25,11 +25,11 @@ jobs:
           environment:
             COMPOSE_VERSION: "2.5.0"
           command: |
-            apk add --update nodejs npm
-            apk update && apk upgrade && apk add curl  
+            apk update && apk upgrade && apk add curl              
             curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
             chmod +x ~/docker-compose  
             mv ~/docker-compose /usr/local/bin/docker-compose
+            apk add --update nodejs npm
       - run:
           name: Configure mongoURI
           command: export mongoURI=${mongoURI}
@@ -40,7 +40,9 @@ jobs:
           name: Curl http://127.0.0.1/
           command: |
             node -v            
-            curl http://localhost:80
+            curl http://localhost/
+            curl http://localhost/3000
+            curl http://localhost/27017
 
   # STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
 
