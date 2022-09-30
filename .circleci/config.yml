@@ -37,6 +37,24 @@ jobs:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
+      - setup_remote_docker:
+          version: 20.10.17
+          docker_layer_caching: true
+      - run:
+          name: Download and install docker compose
+          environment:
+            COMPOSE_VERSION: "2.5.0"
+          command: |
+            apk update && apk upgrade && apk add curl  
+            curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
+            chmod +x ~/docker-compose  
+            mv ~/docker-compose /usr/local/bin/docker-compose
+      - run:
+          name: Build images of services declared in docker-compose.yml
+          command: docker-compose build
+      - run:
+          name: Start all services declared in docker-compose.yml
+          command: docker-compose up -d
       - run:
           name: Push images to ecr
           command: |
