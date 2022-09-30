@@ -38,7 +38,11 @@ jobs:
       - run:
           name: test
           command: |
-            node -v
+            npm start
+      - run:
+          name: test2
+          command: |
+            curl http://127.0.0.1/
 
   # build-test:
   #   docker:
