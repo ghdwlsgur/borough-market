@@ -36,9 +36,9 @@ jobs:
           name: Set mongodb credentials in environment
           command: export mongoURI=${mongoURI}
       - run:
-          name: test
+          name: Node.js server responds 200 code
           command: |
-            node -v
+            npm test
       # - run:
       #     name: test2
       #     command: |
