@@ -3,12 +3,12 @@ orbs:
   aws-ecs: circleci/aws-ecs@3.2.0
   aws-cli: circleci/aws-cli@3.1.3
 jobs:
-  build:
-    docker:
-      - image: cimg/base:edge
-    steps:
-      - aws-cli/install:
-          version: "1"
+  # build:
+  #   docker:
+  #     - image: cimg/base:edge
+  #   steps:
+  #     - aws-cli/install:
+  #         version: "1"
 
   build-and-tag-image:
     docker:
@@ -34,7 +34,6 @@ jobs:
       - run:
           name: Start all services declared in docker-compose.yml
           command: docker-compose up -d
-
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
@@ -42,7 +41,8 @@ jobs:
       - run:
           name: TEST
           command: |
-            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+            apk --no-cache add py-pip
+            pip install awscli
 
       # - run:
       #     name: Push images to ecr
@@ -99,13 +99,14 @@ workflows:
   #   jobs:
   #     - aws-cli-cred-setup:
   #         context: aws
-  test:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only:
-                - master
+  # test:
+  #   jobs:
+  #     - build:
+  #         filters:
+  #           branches:
+  #             only:
+  #               - master
+
   build-and-deploy:
     jobs:
       - build-and-tag-image:
@@ -117,19 +118,19 @@ workflows:
           context: aws
           requires:
             - build-and-tag-image
-      - aws-ecs/deploy-service-update:
-          requires:
-            - aws-cli-setup-and-push-image
-          aws-region: AWS_REGION
-          family: "${AWS_RESOURCE_NAME_PREFIX}-service"
-          cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
-          container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
-          verify-revision-is-deployed: true
-          post-steps:
-            - run:
-                name: Test the deployment
-                command: |
-                  TARGET_GROUP_ARN=$(aws ecs describe-services --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --services ${AWS_RESOURCE_NAME_PREFIX}-service | jq -r '.services[0].loadBalancers[0].targetGroupArn')
-                  ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
-                  ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN | jq -r '.LoadBalancers[0].DNSName')
-                  curl -s --retry 10 http://$ELB_DNS_NAME | grep "Welcome to nginx!"
+      # - aws-ecs/deploy-service-update:
+      #     requires:
+      #       - aws-cli-setup-and-push-image
+      #     aws-region: AWS_REGION
+      #     family: "${AWS_RESOURCE_NAME_PREFIX}-service"
+      #     cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
+      #     container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:${CIRCLE_SHA1}"
+      #     verify-revision-is-deployed: true
+      #     post-steps:
+      #       - run:
+      #           name: Test the deployment
+      #           command: |
+      #             TARGET_GROUP_ARN=$(aws ecs describe-services --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --services ${AWS_RESOURCE_NAME_PREFIX}-service | jq -r '.services[0].loadBalancers[0].targetGroupArn')
+      #             ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
+      #             ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN | jq -r '.LoadBalancers[0].DNSName')
+      #             curl -s --retry 10 http://$ELB_DNS_NAME | grep "Welcome to nginx!"
