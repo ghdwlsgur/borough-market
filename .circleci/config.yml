@@ -8,8 +8,6 @@ jobs:
       - image: docker:22.06-rc-git
     resource_class: large
     steps:
-      - aws-cli/install:
-          version: "2"
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
@@ -57,9 +55,9 @@ jobs:
           environment:
             COMPOSE_VERSION: "2.5.0"
           command: |
-            apk update && apk upgrade && apk add curl  
+            apt-get update && apt-get upgrade && apt-get install curl  
             curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
-            sudo chmod +x ~/docker-compose  
+            chmod +x ~/docker-compose  
             mv ~/docker-compose /usr/local/bin/docker-compose
       - run:
           name: Push images to ecr
