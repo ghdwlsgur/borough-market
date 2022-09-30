@@ -9,7 +9,7 @@ jobs:
     resource_class: large
     steps:
       - aws-cli/install:
-          version: "1"
+          version: "2"
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
