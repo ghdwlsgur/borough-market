@@ -114,16 +114,16 @@ workflows:
               only:
                 - master
       - tag-and-push-image-to-ecr:
+          requires:
+            - express-test
           filters:
             branches:
               only:
                 - master
-          requires:
-            - express-test
 
       - aws-ecs/deploy-service-update:
           requires:
-            - aws-cli-setup-and-push-image
+            - tag-and-push-image-to-ecr
           aws-region: AWS_REGION
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
           cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
