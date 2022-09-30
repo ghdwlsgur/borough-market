@@ -120,10 +120,7 @@ workflows:
                 - master
           requires:
             - build-test
-      - aws-cli-setup-and-push-image:
-          context: aws
-          requires:
-            - tag-and-push-image-to-ecr
+
       # - aws-ecs/deploy-service-update:
       #     requires:
       #       - aws-cli-setup-and-push-image
