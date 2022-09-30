@@ -5,19 +5,6 @@ orbs:
   aws-ecs: circleci/aws-ecs@3.2.0
   aws-cli: circleci/aws-cli@3.1.3
 jobs:
-  aws-cli-cred-setup:
-    executor: aws-cli/default
-    steps:
-      - aws-cli/setup:
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_ACCESS_SECRET
-          aws-region: AWS_REGION
-      - run:
-          name: TEST
-          command: |
-            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-    requires:
-      - build-and-tag-image
   # aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 420578220663.dkr.ecr.us-east-1.amazonaws.com
   # https://circleci.com/docs/docker-compose
   build-and-tag-image:
@@ -47,6 +34,17 @@ jobs:
       - run:
           name: Tear down
           command: docker-compose down -v
+  aws-cli-cred-setup:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY
+          aws-secret-access-key: AWS_ACCESS_SECRET
+          aws-region: AWS_REGION
+      - run:
+          name: TEST
+          command: |
+            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
       # - run:
       #     name: Tag docker images
