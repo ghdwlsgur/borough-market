@@ -27,9 +27,9 @@ jobs:
       - run:
           name: Start all services declared in docker-compose.yml
           command: docker-compose up -d
-      - run:
-          name: Tear down
-          command: docker-compose down -v
+      # - run:
+      #     name: Tear down
+      #     command: docker-compose down -v
   aws-cli-setup-and-push-image:
     executor: aws-cli/default
     steps:
@@ -41,6 +41,7 @@ jobs:
           name: Push images to ecr
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then 
+              docker images
               aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
               docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
