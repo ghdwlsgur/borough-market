@@ -11,6 +11,7 @@ jobs:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
+
   build-test:
     executor:
       name: node/default
@@ -20,15 +21,15 @@ jobs:
       - restore_cache:
           name: Restore Npm Package Cache
           keys:
-            - npm-packages-{{ checksum "package-lock.json" }}
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+      - run: npm ci
+      - run: npm run test:ci
       - save_cache:
           name: Save Npm Package Cache
-          key: npm-packages-{{ checksum "package-lock.json" }}
           paths:
-            - node_modules/**
-      - node/install-packages:
-          override-ci-command: npm install
-          cache-path: ./node_modules
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
       - run:
           name: Set mongodb credentials in environment
           command: export mongoURI=${mongoURI}
