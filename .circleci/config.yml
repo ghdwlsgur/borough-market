@@ -70,6 +70,7 @@ workflows:
       #     aws-secret-access-key: AWS_ACCESS_SECRET
       #     requires:
       #       - build-and-tag-image
+
       - aws-ecr/build-and-push-image:
           account-url: AWS_ECR_ACCOUNT_URL
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
