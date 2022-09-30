@@ -16,7 +16,8 @@ jobs:
   # https://circleci.com/docs/docker-compose
   build-and-tag-image:
     docker:
-      - image: docker:17.05.0-ce-git
+      # - image: docker:17.05.0-ce-git
+      - image: docker:22.06-rc-git
     resource_class: large
     steps:
       - checkout
