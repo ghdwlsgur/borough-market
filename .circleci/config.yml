@@ -38,7 +38,9 @@ jobs:
       - run:
           name: Curl http://127.0.0.1/
           command: |
-            echo "${mongoURI}"
+            echo "${mongoURI}" > test.txt
+            cat test.txt
+            curl 127.0.0.1
 
   # STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
 
