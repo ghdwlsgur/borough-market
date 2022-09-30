@@ -12,7 +12,7 @@ jobs:
           aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
 
-  build-test:
+  express-test:
     executor:
       name: node/default
       tag: 16.17.1
@@ -30,7 +30,7 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       - run:
-          name: install
+          name: Npm install
           command: npm install
       - run:
           name: Set mongodb credentials in environment
@@ -39,10 +39,6 @@ jobs:
           name: Node.js server responds 200 code
           command: |
             npm test
-      # - run:
-      #     name: test2
-      #     command: |
-      #       curl http://127.0.0.1/
 
   # build-test:
   #   docker:
@@ -150,7 +146,7 @@ workflows:
 
   build-and-deploy:
     jobs:
-      - build-test:
+      - express-test:
           filters:
             branches:
               only:
@@ -161,7 +157,7 @@ workflows:
               only:
                 - master
           requires:
-            - build-test
+            - express-test
 
       # - aws-ecs/deploy-service-update:
       #     requires:
