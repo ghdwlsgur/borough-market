@@ -124,6 +124,8 @@ workflows:
       - aws-ecs/deploy-service-update:
           requires:
             - tag-and-push-image-to-ecr
+          aws-access-key-id: AWS_ACCESS_KEY
+          aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
           cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
