@@ -11,8 +11,8 @@
     "type": "git",
     "url": "git+https://github.com/ghdwlsgur/borough-market.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "https://github.com/ghdwlsgur",  
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ghdwlsgur/borough-market/issues"
   },
