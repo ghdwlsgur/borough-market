@@ -40,7 +40,7 @@ jobs:
           command: |
             echo "${mongoURI}" > test.txt
             cat test.txt
-            curl 127.0.0.1
+            curl http://localhost:80
 
   # STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
 
@@ -101,7 +101,7 @@ jobs:
             fi
       - run:
           name: Tear down
-          command: docker-compoes down -v
+          command: docker-compose down -v
 
 workflows:
   aws-credentials-validate:
