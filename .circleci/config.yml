@@ -10,7 +10,41 @@ jobs:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
-  build-and-tag-image:
+
+  build-test:
+    docker:
+      - image: docker:22.06-rc-git
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.17
+      - run:
+          name: Download and install docker compose
+          environment:
+            COMPOSE_VERSION: "2.5.0"
+          command: |
+            apk update && apk upgrade && apk add curl  
+            curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
+            chmod +x ~/docker-compose  
+            mv ~/docker-compose /usr/local/bin/docker-compose
+      - run:
+          name: Configure mongoURI
+          command: export mongoURI=${mongoURI}
+      - run:
+          name: Build images of services and Start all services declared in docker-compose.yml
+          command: docker-compose up -d --build
+      - run:
+          name: Curl http://127.0.0.1/
+          command: |
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
+
+            if [ $STATUS -eq 200 ]; then 
+              echo "success"
+            fi
+
+  tag-and-push-image-to-ecr:
     docker:
       - image: docker:22.06-rc-git
     resource_class: large
@@ -49,91 +83,47 @@ jobs:
           name: Execute aws ecr get-login-password
           command: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       - run:
-          name: Push images to ecr
+          name: Push node images to ecr
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then      
               docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
             fi
-
-      # - run:
-      #     name: Push images to ecr
-      #     command: |
-      #       if [ "${CIRCLE_BRANCH}" == "master" ]; then
-      #         docker images
-      #         aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-
-      #         docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
-      #         docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
-      #       fi
-      # - run:
-      #     name: Tear down
-      #     command: docker-compose down -v
-  aws-cli-setup-and-push-image:
-    executor: aws-cli/default
-    steps:
-      - aws-cli/setup:
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_ACCESS_SECRET
-          aws-region: AWS_REGION
-      - setup_remote_docker:
-          version: 20.10.17
-          docker_layer_caching: true
       - run:
-          name: Download and install docker compose
-          environment:
-            COMPOSE_VERSION: "2.5.0"
+          name: Push mongo images to ecr
           command: |
-            apt-get update && apt-get upgrade && apt-get install curl  
-            curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
-            chmod +x ~/docker-compose  
-            mv ~/docker-compose /usr/local/bin/docker-compose
-      - run:
-          name: Push images to ecr
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then 
-              docker images
-              aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-
-              docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
-              docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then     
+              docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo
+              docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo
             fi
+      - run:
+          name: Tear down
+          command: docker-compoes down -v
 
-      # - run:
-      #     name: Tag docker images
-      #     command: |
-      #       if [ "${CIRCLE_BRANCH}" == "master" ]; then
-      #         docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com:${AWS_RESOURCE_NAME_PREFIX}-node
-      #         docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com:${AWS_RESOURCE_NAME_PREFIX}-mongo
-      #       fi
 workflows:
-  # aws-credentials-validate:
-  #   jobs:
-  #     - aws-cli-cred-setup:
-  #         context: aws
-  # test:
-  #   jobs:
-  #     - build:
-  #         filters:
-  #           branches:
-  #             only:
-  #               - master
-
   aws-credentials-validate:
     jobs:
       - aws-cli-cred-setup:
           context: aws
+
   build-and-deploy:
     jobs:
-      - build-and-tag-image:
+      - build-test:
           filters:
             branches:
               only:
                 - master
+      - tag-and-push-image-to-ecr:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - build-test
       - aws-cli-setup-and-push-image:
           context: aws
           requires:
-            - build-and-tag-image
+            - tag-and-push-image-to-ecr
       # - aws-ecs/deploy-service-update:
       #     requires:
       #       - aws-cli-setup-and-push-image
