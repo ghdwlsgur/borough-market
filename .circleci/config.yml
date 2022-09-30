@@ -35,10 +35,16 @@ jobs:
           name: Start all services declared in docker-compose.yml
           command: docker-compose up -d
       - run:
-          name: TEST
+          name: Install awscli
           command: |
             apk --no-cache add py-pip
             pip install awscli
+      - run:
+          name: Configure aws credentials
+          command: |
+            aws configure set aws_access_key_id ${AWS_ACCESS_KEY} --profile default
+            aws configure set aws_secret_access_key ${AWS_ACCESS_SECRET} --profile default
+            aws configure set region ${AWS_REGION} --profile default
 
       # - run:
       #     name: Push images to ecr
