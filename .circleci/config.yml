@@ -19,9 +19,9 @@ jobs:
       - checkout
       - node/install-packages:
           pkg-manager: npm
-      - run:
-          name: test config
-          command: export mongoURI=${mongoURI}
+      # - run:
+      #     name: test config
+      #     command: export mongoURI=${mongoURI}
       - run:
           name: test
           command: npm start
