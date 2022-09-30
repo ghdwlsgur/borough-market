@@ -1,7 +1,7 @@
 version: 2.1
 orbs:
   # https://circleci.com/developer/orbs/orb/circleci/aws-ecr?version=7.3.0
-  aws-ecr: circleci/aws-ecr@7.1.0
+  aws-ecr: circleci/aws-ecr@8.1.2
   aws-ecs: circleci/aws-ecs@3.2.0
   aws-cli: circleci/aws-cli@3.1.3
 jobs:
@@ -61,15 +61,15 @@ workflows:
             branches:
               only:
                 - master
-      - aws-ecr/build-and-push-image:
-          # account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY
-          aws-secret-access-key: AWS_ACCESS_SECRET
-          requires:
-            - build-and-tag-image
+      # - aws-ecr/build-and-push-image:
+      #     # account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+      #     repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+      #     tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
+      #     account-url: AWS_ECR_ACCOUNT_URL
+      #     aws-access-key-id: AWS_ACCESS_KEY
+      #     aws-secret-access-key: AWS_ACCESS_SECRET
+      #     requires:
+      #       - build-and-tag-image
       # https://circleci.com/developer/orbs/orb/circleci/aws-ecr
       # - aws-ecr/build_and_push_image:
       #     account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
@@ -78,20 +78,19 @@ workflows:
       #     tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
       #     requires:
       #       - build-and-tag-image
-
-      # - aws-ecr/build-and-push-image:
-      #     aws-cli-version: latest
-      #     aws-access-key-id: AWS_ACCESS_KEY
-      #     aws-secret-access-key: AWS_ACCESS_SECRET
-      #     executor: aws-ecr/default
-      #     repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-      #     registry-id: AWS_ACCOUNT_ID
-      #     region: "${AWS_REGION}"
-      #     repo-scan-on-push: true
-      #     push-image: true
-      #     tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
-      #     requires:
-      #       - build-and-tag-image
+      - aws-ecr/build-and-push-image:
+          aws-cli-version: latest
+          aws-access-key-id: AWS_ACCESS_KEY
+          aws-secret-access-key: AWS_ACCESS_SECRET
+          executor: aws-ecr/default
+          repo: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          registry-id: AWS_ACCOUNT_ID
+          region: "${AWS_REGION}"
+          repo-scan-on-push: true
+          push-image: true
+          tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
+          requires:
+            - build-and-tag-image
       - aws-ecs/deploy-service-update:
           requires:
             - aws-ecr/build-and-push-image
