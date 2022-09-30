@@ -34,7 +34,7 @@ jobs:
       - run:
           name: test
           command: |
-            npm start
+            npm install & npm start
 
   # build-test:
   #   docker:
