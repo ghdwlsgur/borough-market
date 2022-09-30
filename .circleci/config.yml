@@ -35,7 +35,11 @@ jobs:
           command: export mongoURI=${mongoURI}
       - run:
           name: Build images of services and Start all services declared in docker-compose.yml
-          command: docker-compose up -d --build
+          command: |
+            docker-compose up -d --build
+            curl http://localhost/
+            curl http://localhost/3000
+            curl http://localhost/27017
       - run:
           name: Curl http://127.0.0.1/
           command: |
