@@ -83,7 +83,7 @@ workflows:
           aws-access-key-id: AWS_ACCESS_KEY
           aws-secret-access-key: AWS_ACCESS_SECRET
           executor: aws-ecr/default
-          repo: AWS_RESOURCE_NAME_PREFIX
+          repo: "{AWS_RESOURCE_NAME_PREFIX}"
           tag: "latest"
           registry-id: AWS_ACCOUNT_ID
           region: "${AWS_REGION}"
