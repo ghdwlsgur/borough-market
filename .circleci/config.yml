@@ -38,9 +38,8 @@ jobs:
       - run:
           name: Curl http://127.0.0.1/
           command: |
-            echo "${mongoURI}" > test.txt
-            cat test.txt
-            curl http://localhost:80
+
+            npm start
 
   # STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
 
