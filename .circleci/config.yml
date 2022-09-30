@@ -28,13 +28,16 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
+      - node/install-packages:
+          override-ci-command: npm install
+          cache-path: ./node_modules
       - run:
           name: Set mongodb credentials in environment
           command: export mongoURI=${mongoURI}
       - run:
           name: test
           command: |
-            npm install & npm start
+            npm start
 
   # build-test:
   #   docker:
