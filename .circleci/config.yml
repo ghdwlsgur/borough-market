@@ -38,12 +38,13 @@ jobs:
       - run:
           name: Curl http://127.0.0.1/
           command: |
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
+            curl 127.0.0.1
 
-            if [ $STATUS -eq 200 ]; then 
-              echo "success"
-            fi
+  # STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1/)
 
+  #             if [ $STATUS -eq 200 ]; then
+  #               echo "success"
+  #             fi
   tag-and-push-image-to-ecr:
     docker:
       - image: docker:22.06-rc-git
