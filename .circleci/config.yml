@@ -17,11 +17,14 @@ jobs:
     steps:
       - checkout
       - run: sudo npm install -g npm@latest
+      - restore_cache:
+          keys:
+            - v1-npm-deps-{{ checksum "package-lock.json" }}
       - node/install-packages:
           override-ci-command: npm install
           cache-path: ./node_modules
       - run:
-          name: test config
+          name: Set mongodb credentials in environment
           command: export mongoURI=${mongoURI}
       - run:
           name: test
