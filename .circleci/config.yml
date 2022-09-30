@@ -70,10 +70,11 @@ workflows:
       #     aws-secret-access-key: AWS_ACCESS_SECRET
       #     requires:
       #       - build-and-tag-image
-      - aws-ecr/push-image:
+      - aws-ecr/build-and-push-image:
           account-url: AWS_ECR_ACCOUNT_URL
           repo: "${AWS_RESOURCE_NAME_PREFIX}"
           tag: "${AWS_RESOURCE_NAME_PREFIX}-node"
+          push-image: true
           requires:
             - build-and-tag-image
 
@@ -100,8 +101,7 @@ workflows:
       #       - build-and-tag-image
       - aws-ecs/deploy-service-update:
           requires:
-            - aws-ecr/push-image
-            # - aws-ecr/build-and-push-image
+            - aws-ecr/build-and-push-image
             # - build-and-tag-image
           aws-region: AWS_REGION
           family: "${AWS_RESOURCE_NAME_PREFIX}-service"
