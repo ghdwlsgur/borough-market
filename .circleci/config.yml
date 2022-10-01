@@ -95,7 +95,7 @@ jobs:
           command: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       - run:
           name: Start all services declared in docker-compose.yml
-          command: export version=${CIRCLE_SHA1} && docker-compose up -d
+          command: export version=${CIRCLE_SHA1} && export mongoURI=${mongoURI} && docker-compose up -d
       - run:
           name: Push node images to ecr
           command: |
