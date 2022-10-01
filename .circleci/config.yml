@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Docker login
           command: |
-            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_UESRNAME" --password-stdin
+            echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_UESRNAME" --password-stdin
       - run:
           name: Docker build and push image to docker hub
           command: |
