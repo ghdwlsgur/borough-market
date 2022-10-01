@@ -12,6 +12,19 @@ jobs:
           aws-secret-access-key: AWS_ACCESS_SECRET
           aws-region: AWS_REGION
 
+  build-image:
+    docker:
+      - image: docker:22.06-rc-git
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.17
+      - run:
+          name: TEST
+          command: docker -v
+
   express-test:
     executor:
       name: node/default
@@ -98,11 +111,18 @@ workflows:
 
   build-and-deploy:
     jobs:
+      - build-image:
+          filters:
+            branches:
+              only:
+                - master
       - express-test:
           filters:
             branches:
               only:
                 - master
+          requires:
+            - node-and-mongo-build
       - tag-and-push-image-to-ecr:
           requires:
             - express-test
