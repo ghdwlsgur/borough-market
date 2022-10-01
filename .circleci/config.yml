@@ -39,7 +39,7 @@ jobs:
       - run:
           name: TEST
           command: |
-            docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+            docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_PASSWORD}
             docker build -t redmax45/borough-market-node:${CIRCLE_SHA1} ./
             docker push redmax45/borough-market-node:${CIRCLE_SHA1}
 
