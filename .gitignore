@@ -10,4 +10,5 @@ terraform_setup/terraform.tfstate.backup
 # terraform variables
 terraform_setup/terraform.tfvars 
 
+.vscode
 
