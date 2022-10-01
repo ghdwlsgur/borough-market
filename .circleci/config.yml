@@ -23,8 +23,19 @@ jobs:
           docker_layer_caching: true
           version: 20.10.17
       - run:
-          name: Docker login
-          command: docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+          name: Download and install awscli
+          command: |
+            apk --no-cache add py-pip 
+            pip install awscli
+      - run:
+          name: Configure aws credentials
+          command: |
+            aws configure set aws_access_key_id ${AWS_ACCESS_KEY} --profile default
+            aws configure set aws_secret_access_key ${AWS_ACCESS_SECRET} --profile default
+            aws configure set region ${AWS_REGION} --profile default
+      - run:
+          name: Execute aws ecr get-login-password
+          command: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       - run:
           name: TEST
           command: |
