@@ -68,7 +68,7 @@ jobs:
             aws configure set region ${AWS_REGION} --profile default
       - run:
           name: Start all services declared in docker-compose.yml
-          command: docker-compose -v && docker-compose up -d
+          command: docker-compose up -d
       - run:
           name: Execute aws ecr get-login-password
           command: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
