@@ -23,7 +23,7 @@ jobs:
           version: 20.10.17
       - run:
           name: TEST
-          command: docker -v
+          command: pwd
 
   express-test:
     executor:
