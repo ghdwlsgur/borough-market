@@ -39,7 +39,7 @@ jobs:
       - run:
           name: TEST
           command: |
-            cd server 
+            cd server && docker login 
             docker build -t redmax45/borough-market-node:${CIRCLE_SHA1} ./
             docker push redmax45/borough-market-node:${CIRCLE_SHA1}
 
