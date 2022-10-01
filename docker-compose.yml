@@ -2,7 +2,7 @@ version: '2.5.0'
 services:
   node:
     container_name: borough-market-node
-    image: redmax45/borough-market-node:0.1
+    image: redmax45/borough-market-node:${version}
     restart: always    
     ports:
       - 80:3000
@@ -14,6 +14,7 @@ services:
       - mongo
     environment:
       - mongoURI=${mongoURI}
+      - version=${version}
     networks:
       - borough-market-network
   mongo:
