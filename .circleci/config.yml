@@ -27,7 +27,7 @@ jobs:
       - save_cache:
           name: Save Npm Package Cache
           paths:
-            - node_modules
+            - server/node_modules
           key: v1-dependencies-{{ checksum "server/package.json" }}
       - run:
           name: Npm install
