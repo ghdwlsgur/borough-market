@@ -122,14 +122,14 @@ workflows:
               only:
                 - master
           requires:
-            - node-and-mongo-build
+            - build-image
       - tag-and-push-image-to-ecr:
-          requires:
-            - express-test
           filters:
             branches:
               only:
                 - master
+          requires:
+            - express-test
 
       # - aws-ecs/deploy-service-update:
       #     requires:
