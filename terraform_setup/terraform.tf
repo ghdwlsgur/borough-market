@@ -20,7 +20,12 @@ locals {
 }
 
 resource "aws_ecr_repository" "borough-market" {
-  name = local.aws_ecr_repository_name
+  name                 = local.aws_ecr_repository_name
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
 }
 
 resource "aws_cloudformation_stack" "vpc" {
