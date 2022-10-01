@@ -3,8 +3,7 @@ services:
   node:
     container_name: borough-market-node
     image: redmax45/borough-market-node:0.1
-    restart: always
-    build: .
+    restart: always    
     ports:
       - 80:3000
     depends_on:
@@ -19,7 +18,7 @@ services:
       - borough-market-network
   mongo:
     container_name: borough-market-mongo
-    image: mongo
+    image: redmax45/mongo:0.1
     ports:
       - 27017:27017
     volumes:
