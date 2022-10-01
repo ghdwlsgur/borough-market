@@ -18,17 +18,17 @@ jobs:
       tag: 16.17.1
     steps:
       - checkout
-      - run: sudo npm install -g npm@latest && cd server
+      - run: sudo npm install -g npm@latest && cd server && ls; pwd;
       - restore_cache:
           name: Restore Npm Package Cache
           keys:
-            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-{{ checksum "server/package.json" }}
             - v1-dependencies-
       - save_cache:
           name: Save Npm Package Cache
           paths:
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "server/package.json" }}
       - run:
           name: Npm install
           command: npm install
