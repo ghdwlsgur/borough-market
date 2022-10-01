@@ -16,6 +16,9 @@ jobs:
     working_directory: ~/project/server
     docker:
       - image: docker:22.06-rc-git
+        auth:
+          username: ${DOCKER_USERNAME}
+          password: ${DOCKER_PASSWORD}
     resource_class: large
     steps:
       - checkout
@@ -23,25 +26,12 @@ jobs:
           docker_layer_caching: true
           version: 20.10.17
       - run:
-          name: Download and install awscli
-          command: |
-            apk --no-cache add py-pip 
-            pip install awscli
-      - run:
-          name: Configure aws credentials
-          command: |
-            aws configure set aws_access_key_id ${AWS_ACCESS_KEY} --profile default
-            aws configure set aws_secret_access_key ${AWS_ACCESS_SECRET} --profile default
-            aws configure set region ${AWS_REGION} --profile default
-      - run:
-          name: Execute aws ecr get-login-password
-          command: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-      - run:
           name: TEST
           command: |
-            docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_PASSWORD}
             docker build -t redmax45/borough-market-node:${CIRCLE_SHA1} ./
             docker push redmax45/borough-market-node:${CIRCLE_SHA1}
+
+  #  docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_PASSWORD}
 
   express-test:
     executor:
