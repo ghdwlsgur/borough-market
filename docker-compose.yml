@@ -1,6 +1,6 @@
 version: '2.5.0'
 services:
-  node:    
+  node:
     container_name: borough-market-node
     image: borough-market-node
     restart: always
@@ -9,14 +9,16 @@ services:
       - 80:3000
     volumes:
       - ./:/code
+    links:
+      - mongo
     environment:
       - mongoURI=${mongoURI}
-  mongo:    
-    container_name: borough-market-mongo      
-    image: mongo    
+  mongo:
+    container_name: borough-market-mongo
+    image: mongo
     ports:
       - 27017:27017
     volumes:
-      - mongodb:/data/db             
+      - mongodb:/data/db
 volumes:
   mongodb:
