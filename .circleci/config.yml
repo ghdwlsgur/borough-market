@@ -51,7 +51,7 @@ jobs:
       - run:
           name: Download and install docker compose and awscli
           environment:
-            COMPOSE_VERSION: "2.5.0"
+            COMPOSE_VERSION: "3.0"
           command: |
             apk update && apk upgrade && apk add curl  
             curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
@@ -67,9 +67,6 @@ jobs:
             aws configure set aws_secret_access_key ${AWS_ACCESS_SECRET} --profile default
             aws configure set region ${AWS_REGION} --profile default
       - run:
-          name: Build images of services declared in docker-compose.yml
-          command: docker-compose build
-      - run:
           name: Start all services declared in docker-compose.yml
           command: docker-compose up -d
       - run:
@@ -79,7 +76,7 @@ jobs:
           name: Push node images to ecr
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then      
-              docker tag ${AWS_RESOURCE_NAME_PREFIX}-node:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node-${CIRCLE_SHA1}
+              docker tag redmax45/${AWS_RESOURCE_NAME_PREFIX}-node:0.1 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node-${CIRCLE_SHA1}
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node-${CIRCLE_SHA1}
             fi
       - run:

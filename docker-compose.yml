@@ -1,18 +1,22 @@
-version: '2.5.0'
+version: '3.0'
 services:
   node:
     container_name: borough-market-node
-    image: borough-market-node
+    image: redmax45/borough-market-node:0.1
     restart: always
     build: .
     ports:
       - 80:3000
+    depends_on:
+      - "mongo"
     volumes:
       - ./:/code
     links:
       - mongo
     environment:
       - mongoURI=${mongoURI}
+    networks:
+      - borough-market-network
   mongo:
     container_name: borough-market-mongo
     image: mongo
@@ -20,5 +24,11 @@ services:
       - 27017:27017
     volumes:
       - mongodb:/data/db
+    networks: 
+      - borough-market-network
 volumes:
   mongodb:
+
+networks:
+  borough-market-network:
+    driver: bridge
