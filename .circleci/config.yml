@@ -31,13 +31,13 @@ jobs:
           key: v1-dependencies-{{ checksum "server/package.json" }}
       - run:
           name: Npm install
-          command: ls
+          command: cd server && npm install
       - run:
           name: Set mongodb credentials in environment
           command: export mongoURI=${mongoURI}
       - run:
           name: Node.js server responds 200 code
-          command: npm test
+          command: cd server && npm test
 
   tag-and-push-image-to-ecr:
     docker:
