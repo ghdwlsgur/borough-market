@@ -31,7 +31,7 @@ jobs:
           key: v1-dependencies-{{ checksum "server/package.json" }}
       - run:
           name: Npm install
-          command: npm install
+          command: ls
       - run:
           name: Set mongodb credentials in environment
           command: export mongoURI=${mongoURI}
