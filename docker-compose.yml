@@ -2,7 +2,7 @@ version: '2.5.0'
 services:
   nginx:
     container_name: borough-market-nginx 
-    image: redmax45/borough-market-nginx:0.1
+    image: redmax45/borough-market-nginx:${version}
     ports:
       - 80:80
     depends_on:
