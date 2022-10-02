@@ -27,11 +27,17 @@ jobs:
           command: |
             docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
       - run:
-          name: Docker build and push image to docker hub
+          name: Docker build and push node image to docker hub
           command: |
             cd server
             docker build -t redmax45/borough-market-node:${CIRCLE_SHA1} ./
             docker push redmax45/borough-market-node:${CIRCLE_SHA1}
+      - run:
+          name: Docker build and push nginx image to docker hub
+          command: |
+            cd nginx 
+            docker build -t redmax45/borough-market-nginx:${CIRCLE_SHA1} ./
+            docker push redmax45/borough-market-nginx:${CIRCLE_SHA1}
 
   express-test:
     executor:
