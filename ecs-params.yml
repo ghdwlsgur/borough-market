@@ -1,0 +1,14 @@
+# https://docs.aws.amazon.com/ko_kr/AmazonECS/latest/developerguide/cmd-ecs-cli-compose-ecsparams.html
+version:
+task_definition:
+  ecs_network_mode: bridge
+  services:
+    nginx:
+      cpu_shares: 100
+      mem_limit: 208435456
+    node:
+      cpu_shares: 100
+      mem_limit: 208435456
+    mongo:
+      cpu_shares: 100
+      mem_limit: 208435456
