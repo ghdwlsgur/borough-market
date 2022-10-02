@@ -1,20 +1,22 @@
-version: '2.5.0'
+version: '3'
 services:
-  nginx:
-    container_name: borough-market-nginx 
-    image: redmax45/borough-market-nginx:${version}
-    ports:
-      - 80:80
-    depends_on:
-      - node 
-    networks:
-      - borough-market-network
+  # nginx:
+  #   container_name: borough-market-nginx 
+  #   image: redmax45/borough-market-nginx:${version}
+  #   ports:
+  #     - 80:80
+  #   depends_on:
+  #     - node 
+  #   networks:
+  #     - borough-market-network
+  #   environment:
+  #     - version=${version}
   node:
     container_name: borough-market-node
     image: redmax45/borough-market-node:${version}
     restart: always    
     ports:
-      - 3000:3000
+      - 80:3000
     depends_on:
       - "mongo"
     volumes:
