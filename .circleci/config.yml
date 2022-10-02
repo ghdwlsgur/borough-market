@@ -161,7 +161,7 @@ workflows:
           cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
           container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node-${CIRCLE_SHA1}"
           verify-revision-is-deployed: true
-          steps:
+          post-steps:
             - run:
                 name: Test the deployment
                 command: |
