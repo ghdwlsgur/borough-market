@@ -38,7 +38,6 @@ jobs:
             cd nginx 
             docker build -t redmax45/borough-market-nginx:${CIRCLE_SHA1} ./
             docker push redmax45/borough-market-nginx:${CIRCLE_SHA1}
-
   express-test:
     executor:
       name: node/default
