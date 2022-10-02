@@ -100,6 +100,13 @@ jobs:
           name: Start all services declared in docker-compose.yml
           command: export version=${CIRCLE_SHA1} && export mongoURI=${mongoURI} && docker-compose up -d
       - run:
+          name: Push nginx images to ecr
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then 
+              docker tag redmax45/${AWS_RESOURCE_NAME_PREFIX}-nginx:${CIRCLE_SHA1} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:nginx-${CIRCLE_SHA1}
+              docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:nginx-${CIRCLE_SHA1}
+            fi
+      - run:
           name: Push node images to ecr
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then      
