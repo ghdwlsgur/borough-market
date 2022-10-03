@@ -170,7 +170,7 @@ workflows:
       #             ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN | jq -r '.LoadBalancers[0].DNSName')
       #             curl -s --retry 10 http://$ELB_DNS_NAME | grep "Welcome to nginx!"
 
-      - aws-ecs/deploy-service-update:
+      - deploy-service-update:
           docker:
             - image: docker:22.06-rc-git
           resource_class: large
@@ -212,3 +212,5 @@ workflows:
                   --debug service up \
                   --deployment-max-percent 100 --deployment-min-healthy-percent 0 \
                   --region ${AWS_REGION} --ecs-profile default --cluster-config borough-market-cluster
+          requires:
+            - tag-and-push-image-to-ecr
