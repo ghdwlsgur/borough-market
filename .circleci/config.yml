@@ -123,6 +123,49 @@ jobs:
           name: Tear down
           command: docker-compose down -v
 
+  deploy-service-update:
+    docker:
+      - image: docker:22.06-rc-git
+    resource_class: large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 20.10.17
+      - run:
+          name: Download and install docker compose and awscli
+          environment:
+            COMPOSE_VERSION: "2.5.0"
+          command: |
+            apk update && apk upgrade && apk add curl  
+            curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
+            chmod +x ~/docker-compose  
+            mv ~/docker-compose /usr/local/bin/docker-compose
+
+            apk --no-cache add py-pip
+            pip install awscli
+
+            sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest
+            sudo chmod +x /usr/local/bin/ecs-cli
+            ecs-cli --verison
+      - run:
+          name: Configure aws credentials
+          command: |
+            aws configure set aws_access_key_id ${AWS_ACCESS_KEY} --profile default
+            aws configure set aws_secret_access_key ${AWS_ACCESS_SECRET} --profile default
+            aws configure set region ${AWS_REGION} --profile default
+      - run:
+          name: TEST1
+          command: |
+            ecs-cli configure profile --access-key ${AWS_ACCESS_KEY} --secret-key ${AWS_ACCESS_SECRET} --profile-name default
+      - run:
+          name: TEST2
+          command: |
+            ecs-cli compose --project-name nginx --file docker-compose.yml  \
+            --debug service up \
+            --deployment-max-percent 100 --deployment-min-healthy-percent 0 \
+            --region ${AWS_REGION} --ecs-profile default --cluster-config borough-market-cluster
+
 workflows:
   aws-credentials-validate:
     jobs:
@@ -150,6 +193,11 @@ workflows:
                 - master
           requires:
             - express-test
+      - deploy-service-update:
+          filters:
+            branches:
+              only:
+                - master
 
       # - aws-ecs/deploy-service-update:
       #     requires:
@@ -169,48 +217,3 @@ workflows:
       #             ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
       #             ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN | jq -r '.LoadBalancers[0].DNSName')
       #             curl -s --retry 10 http://$ELB_DNS_NAME | grep "Welcome to nginx!"
-
-      - deploy-service-update:
-          docker:
-            - image: docker:22.06-rc-git
-          resource_class: large
-          steps:
-            - checkout
-            - setup_remote_docker:
-                docker_layer_caching: true
-                version: 20.10.17
-            - run:
-                name: Download and install docker compose and awscli
-                environment:
-                  COMPOSE_VERSION: "2.5.0"
-                command: |
-                  apk update && apk upgrade && apk add curl  
-                  curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
-                  chmod +x ~/docker-compose  
-                  mv ~/docker-compose /usr/local/bin/docker-compose
-
-                  apk --no-cache add py-pip
-                  pip install awscli
-
-                  sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest
-                  sudo chmod +x /usr/local/bin/ecs-cli
-                  ecs-cli --verison
-            - run:
-                name: Configure aws credentials
-                command: |
-                  aws configure set aws_access_key_id ${AWS_ACCESS_KEY} --profile default
-                  aws configure set aws_secret_access_key ${AWS_ACCESS_SECRET} --profile default
-                  aws configure set region ${AWS_REGION} --profile default
-            - run:
-                name: TEST1
-                command: |
-                  ecs-cli configure profile --access-key ${AWS_ACCESS_KEY} --secret-key ${AWS_ACCESS_SECRET} --profile-name default
-            - run:
-                name: TEST2
-                command: |
-                  ecs-cli compose --project-name nginx --file docker-compose.yml  \
-                  --debug service up \
-                  --deployment-max-percent 100 --deployment-min-healthy-percent 0 \
-                  --region ${AWS_REGION} --ecs-profile default --cluster-config borough-market-cluster
-          requires:
-            - tag-and-push-image-to-ecr
