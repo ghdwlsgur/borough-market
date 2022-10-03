@@ -102,6 +102,7 @@ jobs:
       - run:
           name: Start all services declared in docker-compose.yml
           command: |
+            docker network create -d bridge nginx-network
             export version=${CIRCLE_SHA1} && export mongoURI=${mongoURI} 
             docker-compose up -d
       - run:
