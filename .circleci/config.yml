@@ -146,13 +146,14 @@ jobs:
           name: TEST1
           command: |
             ecs-cli configure profile --access-key ${AWS_ACCESS_KEY} --secret-key ${AWS_ACCESS_SECRET} --profile-name default
+            ecs-cli configure --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --default-launch-type EC2 --config-name nginx --region ${AWS_REGION}
       - run:
           name: TEST2
           command: |
             ecs-cli compose --project-name nginx --file docker-compose.yml  \
             --debug service up \
             --deployment-max-percent 100 --deployment-min-healthy-percent 0 \
-            --region ${AWS_REGION} --ecs-profile default --cluster-config borough-market-cluster
+            --region ${AWS_REGION} --ecs-profile default --cluster-config ${AWS_RESOURCE_NAME_PREFIX}-cluster
 
 workflows:
   aws-credentials-validate:
