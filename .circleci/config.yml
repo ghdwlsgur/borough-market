@@ -124,7 +124,7 @@ jobs:
           command: |
             docker images
             if [ "${CIRCLE_BRANCH}" == "master" ]; then                   
-              docker tag mongo:0.1 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
+              docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
             fi
       - run:
