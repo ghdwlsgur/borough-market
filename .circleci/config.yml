@@ -81,10 +81,7 @@ jobs:
           environment:
             COMPOSE_VERSION: "2.5.0"
           command: |
-            apk update && apk upgrade && apk add curl  
-            curl -L "https://github.com/docker/compose/releases/download/v${COMPOSE_VERSION}/docker-compose-linux-x86_64" -o ~/docker-compose  
-            chmod +x ~/docker-compose  
-            mv ~/docker-compose /usr/local/bin/docker-compose
+            apk update && apk upgrade 
 
             apk --no-cache add py-pip
             pip install awscli
@@ -148,7 +145,7 @@ jobs:
             apk update && apk upgrade && apk add curl                          
 
             curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
-            sudo chmod +x /usr/local/bin/ecs-cli
+            chmod +x /usr/local/bin/ecs-cli
             ecs-cli --verison
 
       - run:
