@@ -97,8 +97,6 @@ jobs:
       - run:
           name: Execute aws ecr get-login-password
           command: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-          # command: do2cker login -u AWS -p $(aws ecr get-login-password --region ${AWS_REGION}) ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-          # docker network create nginx_network
       - run:
           name: Start all services declared in docker-compose.yml
           command: |
@@ -124,8 +122,9 @@ jobs:
       - run:
           name: Push mongo images to ecr
           command: |
+            docker images
             if [ "${CIRCLE_BRANCH}" == "master" ]; then                   
-              docker tag mongo:0.1 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
+              docker tag mongo:latest ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
             fi
       - run:
