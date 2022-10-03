@@ -198,6 +198,8 @@ workflows:
             branches:
               only:
                 - master
+          requires:
+            - tag-and-push-image-to-ecr
 
       # - aws-ecs/deploy-service-update:
       #     requires:
