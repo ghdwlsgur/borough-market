@@ -145,7 +145,7 @@ jobs:
       - run:
           name: TEST1
           command: |
-            ecs-cli configure profile --access-key ${AWS_ACCESS_KEY} --secret-key ${AWS_ACCESS_SECRET} --profile-name default --region ${AWS_REGION}
+            ecs-cli configure profile --access-key ${AWS_ACCESS_KEY} --secret-key ${AWS_ACCESS_SECRET} --profile-name default 
             ecs-cli configure --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --default-launch-type EC2 --config-name nginx --region ${AWS_REGION}
       - run:
           name: TEST2
