@@ -1,22 +1,25 @@
 version: '3'
 services:
-  # nginx:
-  #   container_name: borough-market-nginx 
-  #   image: redmax45/borough-market-nginx:${version}
-  #   ports:
-  #     - 80:80
-  #   depends_on:
-  #     - node 
-  #   networks:
-  #     - borough-market-network
-  #   environment:
-  #     - version=${version}
+  nginx:
+    container_name: borough-market-nginx 
+    image: redmax45/borough-market-nginx:${version}
+    ports:
+      - 80:80
+    command: [nginx-debug, "-g", "daemon off;"]
+    links:
+      - node 
+    depends_on:
+      - node 
+    environment:
+      - version=${version}
+    networks:
+      - nginx_network
   node:
     container_name: borough-market-node
     image: redmax45/borough-market-node:${version}
     restart: always    
-    ports:
-      - 80:3000
+    ports:      
+      - 3000:3000
     depends_on:
       - "mongo"
     volumes:
@@ -27,6 +30,7 @@ services:
       - mongoURI=${mongoURI}
       - version=${version}
     networks:
+      - nginx_network
       - borough-market-network
   mongo:
     container_name: borough-market-mongo
@@ -43,3 +47,5 @@ volumes:
 networks:
   borough-market-network:
     driver: bridge
+  nginx_network:
+    external: true 
