@@ -12,3 +12,4 @@ _terraform/terraform.tfstate.backup
 _terraform/terraform.tfvars 
 
 .DS_Store
+.vscode
