@@ -150,18 +150,10 @@ jobs:
             chmod +x ~/docker-compose  
             mv ~/docker-compose /usr/local/bin/docker-compose
 
-            apk --no-cache add py-pip
-            pip install awscli
-
             curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-darwin-amd64-latest
-            chmod +x /usr/local/bin/ecs-cli
+            chmod +x ~/ecs-cli
+            mv ~/ecs-cli /usr/local/bin/ecs-cli
             ecs-cli --verison
-      - run:
-          name: Configure aws credentials
-          command: |
-            aws configure set aws_access_key_id ${AWS_ACCESS_KEY} --profile default
-            aws configure set aws_secret_access_key ${AWS_ACCESS_SECRET} --profile default
-            aws configure set region ${AWS_REGION} --profile default
       - run:
           name: TEST1
           command: |
