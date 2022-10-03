@@ -102,7 +102,9 @@ jobs:
       - run:
           name: Start all services declared in docker-compose.yml
           command: |
-            docker network create nginx-network
+            if [ "$(docker network ls | grep "nginx_network" | awk '{print $2}')" != "nginx_network" ]; then 
+              docker network create nginx_network
+            fi             
             export version=${CIRCLE_SHA1} && export mongoURI=${mongoURI} 
             docker-compose up -d
       - run:
