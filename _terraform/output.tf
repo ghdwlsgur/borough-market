@@ -1,4 +1,3 @@
-output "elb-dns-name" {
-  value = aws_elb.app-elb.dns_name
+output "alb-dns-name" {
+  value = aws_alb.borough-market-alb.dns_name
 }
-
