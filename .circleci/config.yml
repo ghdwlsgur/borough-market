@@ -99,7 +99,10 @@ jobs:
 
       - run:
           name: Start all services declared in docker-compose.yml
-          command: export version=${CIRCLE_SHA1} && export mongoURI=${mongoURI} && docker-compose up -d
+          command: |
+            export version=${CIRCLE_SHA1} && export mongoURI=${mongoURI} 
+            docker network create nginx_network
+            docker-compose up -d
       - run:
           name: Push nginx images to ecr
           command: |
