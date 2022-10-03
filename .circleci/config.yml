@@ -121,9 +121,8 @@ jobs:
       - run:
           name: Push mongo images to ecr
           command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then     
-              docker images
-              docker tag mongo:${CIRCLE_SHA1} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then                   
+              docker tag mongo:0.1 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
             fi
       - run:
