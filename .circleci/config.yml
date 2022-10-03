@@ -202,7 +202,7 @@ workflows:
             - tag-and-push-image-to-ecr
 
       # - aws-ecs/deploy-service-update:
-      #     requires:
+      #     requires:2
       #       - tag-and-push-image-to-ecr1
       #     aws-access-key-id: AWS_ACCESS_KEY
       #     aws-secret-access-key: AWS_ACCESS_SECRET
