@@ -102,7 +102,7 @@ jobs:
       - run:
           name: Start all services declared in docker-compose.yml
           command: |
-            echo y | docker network prune && docker network create nginx-network
+            docker network create nginx-network
             export version=${CIRCLE_SHA1} && export mongoURI=${mongoURI} 
             docker-compose up -d
       - run:
