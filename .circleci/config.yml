@@ -81,9 +81,7 @@ jobs:
           environment:
             COMPOSE_VERSION: "2.5.0"
           command: |
-            apk update && apk upgrade 
-
-            apk --no-cache add py-pip
+            apk update && apk upgrade && apk --no-cache add py-pip
             pip install awscli
       - run:
           name: Configure aws credentials
@@ -119,7 +117,6 @@ jobs:
       - run:
           name: Push mongo images to ecr
           command: |
-            docker images
             if [ "${CIRCLE_BRANCH}" == "master" ]; then                   
               docker tag redmax45/mongo:0.1 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
               docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
@@ -143,11 +140,8 @@ jobs:
             COMPOSE_VERSION: "2.5.0"
           command: |
             apk update && apk upgrade && apk add curl                          
-
             curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
             chmod +x /usr/local/bin/ecs-cli
-            ecs-cli --verison
-
       - run:
           name: TEST1
           command: |
