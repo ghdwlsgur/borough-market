@@ -7,29 +7,8 @@ _terraform/.terraform.lock.hcl
 _terraform/terraform.tfstate
 _terraform/terraform.tfstate.backup
 
-/**/mykey
-/**/mykey.pub 
 
 # terraform variables
 _terraform/terraform.tfvars 
 
-.vscode
-
-# terraform
-backup1/.terraform/**
-backup1/.terraform.lock.hcl
-backup1/terraform.tfstate
-backup1/terraform.tfstate.backup
-
-# terraform variables
-backup1/terraform.tfvars 
-
-
-# terraform
-backup2/.terraform/**
-backup2/.terraform.lock.hcl
-backup2/terraform.tfstate
-backup2/terraform.tfstate.backup
-
-# terraform variables
-backup2/terraform.tfvars 
+.DS_Store
