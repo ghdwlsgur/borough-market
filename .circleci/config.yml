@@ -139,7 +139,7 @@ jobs:
           environment:
             COMPOSE_VERSION: "2.5.0"
           command: |
-            apk update && apk upgrade && apk add curl                          
+            apk update && apk upgrade && apk add curl && apk add jq                         
             curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
             chmod +x /usr/local/bin/ecs-cli
 
@@ -154,14 +154,26 @@ jobs:
       - run:
           name: TEST1
           command: |
-            ecs-cli configure profile --access-key ${AWS_ACCESS_KEY} --secret-key ${AWS_ACCESS_SECRET} --profile-name default 
-            ecs-cli configure --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --default-launch-type EC2 --config-name nginx --region ${AWS_REGION}
+            ecs-cli configure --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --default-launch-type EC2 --config-name ${AWS_RESOURCE_NAME_PREFIX}-cluster --region ${AWS_REGION}
 
             export version=${CIRCLE_SHA1} && export mongoURI=${mongoURI}
             ecs-cli compose --project-name nginx --file docker-compose.yml  \
             --debug service up \
             --deployment-max-percent 100 --deployment-min-healthy-percent 0 \
             --region ${AWS_REGION} --ecs-profile default --cluster-config ${AWS_RESOURCE_NAME_PREFIX}-cluster
+      - run:
+          name: TEST2
+          command: |
+            #!/bin/bash 
+            TARGET_GROUP_ARN=$(aws ecs describe-services --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --services nginx --region ${AWS_REGION} | jq -r '.services[0].loadBalancers[0].targetGroupArn')
+            ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN --region ${AWS_REGION} | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
+            ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN --region ${AWS_REGION} | jq -r '.LoadBalancers[0].DNSName')
+
+            STATUS=$(curl -s -o /dev/null -I -w "%{http_code}" http://$ELB_DNS_NAME)
+
+            if [ $STATUS -eq 200 ]; then 
+              echo "SUCCESS"
+            fi
 
 workflows:
   aws-credentials-validate:
@@ -218,3 +230,7 @@ workflows:
       #             curl -s --retry 10 http://$ELB_DNS_NAME | grep "Welcome to nginx!"
 # aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 420578220663.dkr.ecr.eu-central-1.amazonaws.com
 # docker login -u AWS -p $(aws ecr get-login-password --region eu-central-1) 420578220663.dkr.ecr.eu-central-1.amazonaws.com
+
+# aws ecs describe-services --cluster borough-market-cluster --services nginx --region eu-central-1 | jq -r '.services[0].loadBalancers[0].targetGroupArn'
+# aws elbv2 describe-target-groups --target-group-arns arn:aws:elasticloadbalancing:eu-central-1:420578220663:targetgroup/nginx/5c21b9ab6322cbf3 --region eu-central-1 | jq -r '.TargetGroups[0].LoadBalancerArns[0]'
+# aws elbv2 describe-load-balancers --load-balancer-arns arn:aws:elasticloadbalancing:eu-central-1:420578220663:loadbalancer/app/borough-market-alb/ad95ba989a39a7f7 --region eu-central-1 | jq -r '.LoadBalancers[0].DNSName'
