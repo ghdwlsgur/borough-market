@@ -1,4 +1,3 @@
-#run
 version: 2.1
 orbs:
   node: circleci/node@5.0.3
@@ -79,7 +78,7 @@ jobs:
       - run:
           name: Download and install docker compose and awscli
           environment:
-            COMPOSE_VERSION: "2.5.0"
+            COMPOSE_VERSION: "3"
           command: |
             apk update && apk upgrade && apk --no-cache add py-pip
             pip install awscli
@@ -93,8 +92,9 @@ jobs:
           name: Execute aws ecr get-login-password
           command: aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
       - run:
-          name: Start all services declared in docker-compose.yml
+          name: Start all services declared in docker-compose.yml and docker-compose local test
           command: |
+            cd local
             if [ "$(docker network ls | grep "nginx_network" | awk '{print $2}')" != "nginx_network" ]; then 
               docker network create nginx_network
             fi             
@@ -137,7 +137,7 @@ jobs:
       - run:
           name: Download and install docker compose and awscli
           environment:
-            COMPOSE_VERSION: "2.5.0"
+            COMPOSE_VERSION: "3"
           command: |
             apk update && apk upgrade && apk add curl && apk add jq                         
             curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs-cli-linux-amd64-latest
@@ -152,19 +152,25 @@ jobs:
             aws configure set aws_secret_access_key ${AWS_ACCESS_SECRET} --profile default
             aws configure set region ${AWS_REGION} --profile default
       - run:
-          name: TEST1
+          name: Service update and deploy using ecr repository image
           command: |
             ecs-cli configure --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --default-launch-type EC2 --config-name ${AWS_RESOURCE_NAME_PREFIX}-cluster --region ${AWS_REGION}
 
-            export version=${CIRCLE_SHA1} && export mongoURI=${mongoURI}
+            export CIRCLE_SHA1=${CIRCLE_SHA1}
+            export mongoURI=${mongoURI}
+            export AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
+            export AWS_REGION=${AWS_REGION}
+            export AWS_RESOURCE_NAME_PREFIX=${AWS_RESOURCE_NAME_PREFIX}
+
             ecs-cli compose --project-name nginx --file docker-compose.yml  \
             --debug service up \
             --deployment-max-percent 100 --deployment-min-healthy-percent 0 \
             --region ${AWS_REGION} --ecs-profile default --cluster-config ${AWS_RESOURCE_NAME_PREFIX}-cluster
       - run:
-          name: TEST2
+          name: Application load balancer http response check
           command: |
             #!/bin/bash 
+
             TARGET_GROUP_ARN=$(aws ecs describe-services --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --services nginx --region ${AWS_REGION} | jq -r '.services[0].loadBalancers[0].targetGroupArn')
             ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN --region ${AWS_REGION} | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
             ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN --region ${AWS_REGION} | jq -r '.LoadBalancers[0].DNSName')
@@ -209,28 +215,3 @@ workflows:
                 - master
           requires:
             - tag-and-push-image-to-ecr
-
-      # - aws-ecs/deploy-service-update:
-      #     requires:2
-      #       - tag-and-push-image-to-ecr1
-      #     aws-access-key-id: AWS_ACCESS_KEY
-      #     aws-secret-access-key: AWS_ACCESS_SECRET
-      #     aws-region: AWS_REGION
-      #     family: "${AWS_RESOURCE_NAME_PREFIX}-service"
-      #     cluster: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
-      #     container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,image=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node-${CIRCLE_SHA1}"
-      #     verify-revision-is-deployed: true
-      #     post-steps:
-      #       - run:
-      #           name: Test the deployment
-      #           command: |
-      #             TARGET_GROUP_ARN=$(aws ecs describe-services --cluster ${AWS_RESOURCE_NAME_PREFIX}-cluster --services ${AWS_RESOURCE_NAME_PREFIX}-service | jq -r '.services[0].loadBalancers[0].targetGroupArn')
-      #             ELB_ARN=$(aws elbv2 describe-target-groups --target-group-arns $TARGET_GROUP_ARN | jq -r '.TargetGroups[0].LoadBalancerArns[0]')
-      #             ELB_DNS_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns $ELB_ARN | jq -r '.LoadBalancers[0].DNSName')
-      #             curl -s --retry 10 http://$ELB_DNS_NAME | grep "Welcome to nginx!"
-# aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin 420578220663.dkr.ecr.eu-central-1.amazonaws.com
-# docker login -u AWS -p $(aws ecr get-login-password --region eu-central-1) 420578220663.dkr.ecr.eu-central-1.amazonaws.com
-
-# aws ecs describe-services --cluster borough-market-cluster --services nginx --region eu-central-1 | jq -r '.services[0].loadBalancers[0].targetGroupArn'
-# aws elbv2 describe-target-groups --target-group-arns arn:aws:elasticloadbalancing:eu-central-1:420578220663:targetgroup/nginx/5c21b9ab6322cbf3 --region eu-central-1 | jq -r '.TargetGroups[0].LoadBalancerArns[0]'
-# aws elbv2 describe-load-balancers --load-balancer-arns arn:aws:elasticloadbalancing:eu-central-1:420578220663:loadbalancer/app/borough-market-alb/ad95ba989a39a7f7 --region eu-central-1 | jq -r '.LoadBalancers[0].DNSName'

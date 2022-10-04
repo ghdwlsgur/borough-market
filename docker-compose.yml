@@ -2,21 +2,19 @@ version: '3'
 services:
   nginx:
     container_name: borough-market-nginx 
-    image: redmax45/borough-market-nginx:${version}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:nginx-${CIRCLE_SHA1}
     ports:
       - 80:80
     command: [nginx-debug, "-g", "daemon off;"]
     links:
       - node 
     depends_on:
-      - node 
-    environment:
-      - version=${version}
+      - node   
     networks:
       - nginx_network
   node:
-    container_name: borough-market-node
-    image: redmax45/borough-market-node:${version}
+    container_name: borough-market-node    
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:node-${CIRCLE_SHA1}
     restart: always    
     ports:      
       - 3000:3000
@@ -27,14 +25,13 @@ services:
     links:
       - mongo
     environment:
-      - mongoURI=${mongoURI}
-      - version=${version}
+      - mongoURI=${mongoURI}   
     networks:
       - nginx_network
       - borough-market-network
   mongo:
     container_name: borough-market-mongo
-    image: redmax45/mongo:0.1
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AWS_RESOURCE_NAME_PREFIX}:mongo-${CIRCLE_SHA1}
     ports:
       - 27017:27017
     volumes:
