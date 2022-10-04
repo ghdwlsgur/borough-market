@@ -24,3 +24,20 @@ workflow는 총 4단계로 구성하였고 aws 크레덴셜 유효성을 체크�
 
 
 # AWS Architecture
+
+### VPC 
+<img width="1270" alt="image" src="https://user-images.githubusercontent.com/77400522/193803681-41737084-986b-4da4-9bd0-d17cbb1f1166.png">
+대략적인 VPC 아키텍처는 다음과 같습니다. 퍼블릭 서브넷에 존재하는 라우팅 테이블은 인터넷 게이트웨이와 연결되어 퍼블릭 서브넷에 위치한 인스턴스에 공용 아이피를 할당할 경우 인터넷 게이트웨이를 통해 외부와 통신이 가능해집니다. 반면에 프라이빗 서브넷의 라우팅 테이블에는 인터넷 게이트웨이와 연결되어 있지 않아 외부와 통신이 불가능합니다. 본 아키텍처에서는 NAT Gateway나 NAT Device를 사용하지 않으므로 앞으로 생성할 EC2 인스턴스도 퍼블릭 서브넷안에서만 자동 확장하여 생성할 수 있게 설정하였습니다.
+
+
+
+### Service
+<img width="1262" alt="image" src="https://user-images.githubusercontent.com/77400522/193803741-5c1fa51b-3516-44e7-877c-0bc83a413ca4.png">
+생성되는 전체 서비스는 다음과 같습니다. 앞서 설명드린 것처럼 Auto Scaling이 위치한 가용영역은 eu-central-1a, eu-central-1b, eu-central-1c가 되지만 퍼블릭 서브넷으로 범위를 한정하였습니다. 서비스 업데이트 시 ECR 저장소에 이미지를 푸시하고 해당 이미지를 도커 컴포즈로 말아올려 EC2 인스턴스의 세 개의 컨테이너를 올립니다. 
+
+
+### Monitoring
+<img width="1263" alt="image" src="https://user-images.githubusercontent.com/77400522/193803806-f82298f5-7906-41a9-84b2-a6aa9f72cb8f.png">
+모니터링 구조는 다음과 같습니다. CI/CD 워크로드를 진행하기 전 최초 리소스 생성시 Nginx 컨테이너 하나만 생성되는데 이 컨테이너의 로그를 CloudWatch 로그로 추적합니다. CloudWatch Alarms는 테라폼 모듈로 구축한 리소스로 CPU, 메모리 사용률을 추적하여 기준치 알람을 전송하고 EC2 인스턴스의 오토스케일링을 진행합니다.
+
+
