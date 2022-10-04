@@ -94,7 +94,7 @@ jobs:
       - run:
           name: Start all services declared in docker-compose.yml and docker-compose local test
           command: |
-            cd local
+            cd deployment-local
             if [ "$(docker network ls | grep "nginx_network" | awk '{print $2}')" != "nginx_network" ]; then 
               docker network create nginx_network
             fi             
