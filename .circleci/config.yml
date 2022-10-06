@@ -34,14 +34,14 @@ jobs:
       - run:
           name: Generate Infracost cost estimate baseline
           command: |
-            infracost breakdown --path=${TF_ROOT} \
+            infracost breakdown --path=./infracost/base \
                                 --format=json \
                                 --out-file=./infracost/infracost-base.json
 
       - run:
           name: Generate Infracost cost estimate baseline
           command: |
-            infracost diff --path=${TF_ROOT} \
+            infracost diff --path=./infracost/base \
                           --format=json \
                           --compare-to=./infracost/infracost-base.json 
                           --out-file=./infracost/infracost.json
