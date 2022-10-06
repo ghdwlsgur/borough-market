@@ -10,12 +10,12 @@ jobs:
       TF_ROOT: _terraform
       BASE_BRANCH: main
     steps:
-      - run:
-          name: Skip if not pull request
-          command: |
-            if [ "$CIRCLE_PULL_REQUEST" == "" ]; then 
-              circleci step halt 
-            fi
+      # - run:
+      #     name: Skip if not pull request
+      #     command: |
+      #       if [ "$CIRCLE_PULL_REQUEST" == "" ]; then
+      #         circleci step halt
+      #       fi
       - attach_workspace:
           at: /_terraform
       - checkout
@@ -34,9 +34,9 @@ jobs:
           name: Generate Infracost cost estimate baseline
           command: |
             infracost diff --path=${TF_ROOT} \
-                           --format=json \
-                           --compare-to=./infracost/infracost-base.json 
-                           --out-file=./infracost/infracost.json
+                            --format=json \
+                            --compare-to=./infracost/infracost-base.json 
+                            --out-file=./infracost/infracost.json
 
   aws-cli-cred-setup:
     executor: aws-cli/default
