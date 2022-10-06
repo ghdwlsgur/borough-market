@@ -8,8 +8,17 @@ jobs:
       - image: infracost/infracost:ci-0.10
     environment:
       TF_ROOT: _terraform
-      BASE_BRANCH: main
+      BASE_BRANCH: master
+      SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
     steps:
+      - run:
+          name: add git ssh key
+          command: |
+            ssh-agent -a ${SSH_AUTH_SOCK}
+            mkdir -p ~/.ssh             
+            echo "${GIT_SSH_KEY}" | tr -d '\r' | ssh-add -
+            ssh-keyscan github.com >> ~/.ssh/known_hosts
+
       # - run:
       #     name: Skip if not pull request
       #     command: |
@@ -21,10 +30,7 @@ jobs:
       - checkout
       - run:
           name: Checkout base branch
-          command: |
-            echo $CIRCLE_REPOSITORY_URL
-            echo $BASE_BRANCH             
-            git clone $CIRCLE_REPOSITORY_URL --branch=$BASE_BRANCH --single-branch ./infracost/base
+          command: git clone $CIRCLE_REPOSITORY_URL --branch=$BASE_BRANCH --single-branch ./infracost/base
 
       - run:
           name: Generate Infracost cost estimate baseline
@@ -37,9 +43,9 @@ jobs:
           name: Generate Infracost cost estimate baseline
           command: |
             infracost diff --path=${TF_ROOT} \
-                            --format=json \
-                            --compare-to=./infracost/infracost-base.json 
-                            --out-file=./infracost/infracost.json
+                          --format=json \
+                          --compare-to=./infracost/infracost-base.json 
+                          --out-file=./infracost/infracost.json
 
   aws-cli-cred-setup:
     executor: aws-cli/default
