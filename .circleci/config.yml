@@ -21,7 +21,10 @@ jobs:
       - checkout
       - run:
           name: Checkout base branch
-          command: git clone $CIRCLE_REPOSITORY_URL --branch=$BASE_BRANCH --single-branch /_terraform/base
+          command: |
+            echo $CIRCLE_REPOSITORY_URL
+            echo $BASE_BRANCH             
+            git clone $CIRCLE_REPOSITORY_URL --branch=$BASE_BRANCH --single-branch ./infracost/base
 
       - run:
           name: Generate Infracost cost estimate baseline
