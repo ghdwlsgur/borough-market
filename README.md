@@ -1,3 +1,88 @@
+# Download
+1. git clone https://github.com/ghdwlsgur/borough-market.git
+2. 리포지토리 CircleCI 등록 
+
+# Terraform 변수 등록
+- `_terraform/terraform.tfvars`를 생성하고 아래 변수를 등록해주세요.
+
+### 예시
+```
+ECS_AMI             = "ami-0b41652f00b442576"
+INSTANCE_TYPE       = "t2.medium"
+AWS_REGION          = "eu-central-1"
+AWS_RESOURCE_PREFIX = "borough-market"
+EMAIL               = "redmax45@naver.com"
+```
+
+- [required] `ECS_AMI` 
+> 컨테이너를 생성할 인스턴의 AMI를 등록합니다.
+- [required] `INSTANCE_TYPE`
+> 컨테이너를 생성할 인스턴스의 타입을 지정합니다.
+- [required] `AWS_REGION`          
+> 리소스를 생성할 리전을 등록합니다.
+- [required] `AWS_RESOURCE_PREFIX` 
+> 리소스명을 등록합니다.
+- [required] `EMAIL`  
+> ECS 알람을 전송받을 이메일을 등록합니다.
+
+
+
+# CircleCI 환경변수 등록
+> CircleCI - Project Settings - Environment Variables
+
+
+### AWS 계정 (aws profile은 `default`로 진행합니다.)
+! 환경변수명을 동일하게 등록해주세요.
+- [required] `AWS_ACCESS_KEY `
+> aws_access_key_id를 등록합니다.
+- [required] `AWS_ACCESS_SECRET`
+> aws_secret_access_key를 등록합니다.
+- [required]  `AWS_ACCOUNT_ID `
+> 12자리 ACCOUNT ID를 등록합니다.
+- [required] `AWS_REGION `
+> 테라폼 리소스가 설치될 리전을 등록합니다. 테라폼에 등록할 변수인 AWS_REGION과 동일해야 합니다.
+- [required] `AWS_USERNAME`
+> CI/CD 워크로드 중 aws credentials 유효성을 확인하는데 사용됩니다.
+- [required] `AWS_RESOURCE_NAME_PREFIX`
+> AWS 리소스명을 지칭합니다.  테라폼에 등록할 환경변수인 AWS_RESOURCE_PREFIX와 동일해야 합니다.
+
+### Docker HUB 계정 
+- [required] `DOCKER_PASSWORD`
+- [required] `DOCKER_USERNAME`
+
+### MongoDB URI 
+- [required] `mongoURI`
+
+
+# 테라폼 리소스 생성
+
+```bash
+cd _terraform 
+terraform init 
+terraform plan
+terraform apply --auto-approve
+```
+
+# 파일구조 수정
+```bash
+📦 borough-market
+└── 🗂 ephemeral
+     └── 📂 .circleci
+          └── 📄 config.yml 
+```
+
+```bash
+📦 borough-market
+└── 🗂 .circleci
+     └── 📄 config.yml 
+
+```
+
+파일 수정 중 CircleCI 동작을 방지하기 위해 임시로 담아둔 폴더에서 밖으로 빼줍니다.
+리소스를 모두 생성한 후 github 코드를 푸시하여 CircleCI를 동작합니다.
+
+자세한 설명은 README.md에 작성하겠습니다. 
+
 # Docker Compose Stack
 <p align="center">
   <img src="https://user-images.githubusercontent.com/77400522/193757315-cd73ce20-dd74-49a7-87e5-3d6ac7b7ddff.png">
