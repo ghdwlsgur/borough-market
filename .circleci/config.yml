@@ -3,6 +3,41 @@ orbs:
   node: circleci/node@5.0.3
   aws-cli: circleci/aws-cli@3.1.3
 jobs:
+  infracost:
+    docker:
+      - image: infracost/infracost:ci-0.10
+    environment:
+      TF_ROOT: _terraform
+      BASE_BRANCH: main
+    steps:
+      - run:
+          name: Skip if not pull request
+          command: |
+            if [ "$CIRCLE_PULL_REQUEST" == "" ]; then 
+              circleci step halt 
+            fi
+      - attach_workspace:
+          at: /_terraform
+      - checkout
+      - run:
+          name: Checkout base branch
+          command: git clone $CIRCLE_REPOSITORY_URL --branch=$BASE_BRANCH --single-branch /_terraform/base
+
+      - run:
+          name: Generate Infracost cost estimate baseline
+          command: |
+            infracost breakdown --path:${TF_ROOT} \
+                                --format=json \
+                                --out-file=./infracost/infracost-base.json
+
+      - run:
+          name: Generate Infracost cost estimate baseline
+          command: |
+            infracost diff --path=${TF_ROOT} \
+                           --format=json \
+                           --compare-to=./infracost/infracost-base.json 
+                           --out-file=./infracost/infracost.json
+
   aws-cli-cred-setup:
     executor: aws-cli/default
     steps:
@@ -39,6 +74,7 @@ jobs:
             cd nginx 
             docker build -t redmax45/borough-market-nginx:${CIRCLE_SHA1} ./
             docker push redmax45/borough-market-nginx:${CIRCLE_SHA1}
+
   express-test:
     executor:
       name: node/default
@@ -182,36 +218,39 @@ jobs:
             fi
 
 workflows:
-  aws-credentials-validate:
+  # aws-credentials-validate:
+  #   jobs:
+  #     - aws-cli-cred-setup:
+  #         context: aws
+  infracost:
     jobs:
-      - aws-cli-cred-setup:
-          context: aws
+      - infracost
 
-  build-and-deploy:
-    jobs:
-      - build-image:
-          filters:
-            branches:
-              only:
-                - master
-      - express-test:
-          filters:
-            branches:
-              only:
-                - master
-          requires:
-            - build-image
-      - tag-and-push-image-to-ecr:
-          filters:
-            branches:
-              only:
-                - master
-          requires:
-            - express-test
-      - deploy-service-update:
-          filters:
-            branches:
-              only:
-                - master
-          requires:
-            - tag-and-push-image-to-ecr
+  # build-and-deploy:
+  #   jobs:
+  #     - build-image:
+  #         filters:
+  #           branches:
+  #             only:
+  #               - master
+  #     - express-test:
+  #         filters:
+  #           branches:
+  #             only:
+  #               - master
+  #         requires:
+  #           - build-image
+  #     - tag-and-push-image-to-ecr:
+  #         filters:
+  #           branches:
+  #             only:
+  #               - master
+  #         requires:
+  #           - express-test
+  #     - deploy-service-update:
+  #         filters:
+  #           branches:
+  #             only:
+  #               - master
+  #         requires:
+  #           - tag-and-push-image-to-ecr
