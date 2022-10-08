@@ -11,26 +11,24 @@ jobs:
       BASE_BRANCH: master
       SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
     steps:
-      - run:
-          name: Skip if not pull request
-          command: |
-            if [ "$CIRCLE_PULL_REQUEST" == "" ]; then
-              circleci step halt
-            fi
+      # - run:
+      #     name: Skip if not pull request
+      #     command: |
+      #       if [ "$CIRCLE_PULL_REQUEST" == "" ]; then
+      #         circleci step halt
+      #       fi
       - attach_workspace:
-          at: /_terraform
+          at: /tmp
       - checkout
       - run:
           name: Checkout base branch
           command: git clone $CIRCLE_REPOSITORY_URL --branch=$BASE_BRANCH --single-branch /tmp/base
-
       - run:
           name: Generate Infracost cost estimate baseline
           command: |
             infracost breakdown --path=/tmp/base \
                                 --format=json \
                                 --out-file=/tmp/infracost-base.json
-
       - run:
           name: Generate Infracost cost estimate baseline
           command: |
