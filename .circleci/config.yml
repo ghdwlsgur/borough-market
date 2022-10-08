@@ -7,8 +7,8 @@ jobs:
     docker:
       - image: infracost/infracost:ci-0.10
     environment:
-      TF_ROOT: ./infracost
-      BASE_BRANCH: master
+      TF_ROOT: _terraform
+      BASE_BRANCH: main
       SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
     steps:
       # - run:
@@ -22,12 +22,12 @@ jobs:
       - checkout
       - run:
           name: Checkout base branch
-          command: git clone $CIRCLE_REPOSITORY_URL --branch=$BASE_BRANCH --single-branch ./infracost/base
+          command: git clone $CIRCLE_REPOSITORY_URL --branch=$BASE_BRANCH --single-branch /tmp/base
 
       - run:
           name: Generate Infracost cost estimate baseline
           command: |
-            infracost breakdown --path=./infracost/base \
+            infracost breakdown --path=/tmp/base \
                                 --format=json \
                                 --out-file=./infracost/infracost-base.json
 
@@ -36,8 +36,8 @@ jobs:
           command: |
             infracost diff --path=${TF_ROOT} \
                           --format=json \
-                          --compare-to=./infracost/infracost-base.json 
-                          --out-file=./infracost/infracost.json
+                          --compare-to=/tmp/infracost-base.json \ 
+                          --out-file=/tmp/infracost.json
 
   aws-cli-cred-setup:
     executor: aws-cli/default
