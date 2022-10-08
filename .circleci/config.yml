@@ -7,17 +7,10 @@ jobs:
     docker:
       - image: infracost/infracost:ci-0.10
     environment:
-      TF_ROOT: _terraform
+      TF_ROOT: ./infracost
       BASE_BRANCH: master
       SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
     steps:
-      # - run:
-      #     name: add git ssh key
-      #     command: |
-      #       mkdir -p ~/.ssh
-      #       echo "${GIT_SSH_KEY}" | tr -d '\r' | ssh-add -
-      #       ssh-keyscan github.com >> ~/.ssh/known_hosts
-
       # - run:
       #     name: Skip if not pull request
       #     command: |
@@ -41,7 +34,7 @@ jobs:
       - run:
           name: Generate Infracost cost estimate baseline
           command: |
-            infracost diff --path=./infracost/base \
+            infracost diff --path=${TF_ROOT} \
                           --format=json \
                           --compare-to=./infracost/infracost-base.json 
                           --out-file=./infracost/infracost.json
