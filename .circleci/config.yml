@@ -8,7 +8,7 @@ jobs:
       - image: infracost/infracost:ci-0.10
     environment:
       TF_ROOT: _terraform
-      BASE_BRANCH: main
+      BASE_BRANCH: master
       SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
     steps:
       # - run:
