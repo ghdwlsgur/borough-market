@@ -11,12 +11,12 @@ jobs:
       BASE_BRANCH: master
       SSH_AUTH_SOCK: ${SSH_AUTH_SOCK}
     steps:
-      # - run:
-      #     name: Skip if not pull request
-      #     command: |
-      #       if [ "$CIRCLE_PULL_REQUEST" == "" ]; then
-      #         circleci step halt
-      #       fi
+      - run:
+          name: Skip if not pull request
+          command: |
+            if [ "$CIRCLE_PULL_REQUEST" == "" ]; then
+              circleci step halt
+            fi
       - attach_workspace:
           at: /_terraform
       - checkout
@@ -38,7 +38,16 @@ jobs:
                           --format=json \
                           --compare-to=/tmp/infracost-base.json \ 
                           --out-file=/tmp/infracost.json
-
+      - run:
+          name: Post Infracost comment
+          command: |
+            # Extract the PR number from the PR URL
+            PULL_REQUEST_NUMBER=${CIRCLE_PULL_REQUEST##*/}
+            infracost comment github --path=/tmp/infracost.json \
+                                    --repo=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME \
+                                    --pull-request=$PULL_REQUEST_NUMBER \
+                                    --github-token=$GITHUB_TOKEN \
+                                    --behavior=update
   aws-cli-cred-setup:
     executor: aws-cli/default
     steps:
