@@ -1,5 +1,6 @@
 # Download
-1. git clone https://github.com/ghdwlsgur/borough-market.git
+1. git clone https://github.com/ghdwlsgur/ecs-infra.git
+
 2. 리포지토리 CircleCI 등록 
 
 # Terraform 변수 등록
